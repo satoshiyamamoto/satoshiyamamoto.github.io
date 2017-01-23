@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>私のMoleskin::モッさんのブログ</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="Railsのインストール gemでrailsをインストールします。RailsによるアジャイルWebアプリケーション開発 第4版の日本語版が、Rails 3.x時点の執筆なのでインストールするバージョンもそれに合わせます。インストールが完了したら、バージョンを確認します。 $ gem install &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="私のMoleskin::モッさんのブログ" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">私のMoleskin::モッさんのブログ</a></h1>
+  
+    <h2>WEBやプログラミングに関する技術など、自分の興味のあるネタを残していきます。</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/06/rails/">Mac OS XにRails開発環境を構築する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-06T16:53:03+09:00" pubdate data-updated="true">Jan 6<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Railsのインストール</h2>
+
+<p>gemでrailsをインストールします。<a href="http://www.amazon.co.jp/Rails%E3%81%AB%E3%82%88%E3%82%8B%E3%82%A2%E3%82%B8%E3%83%A3%E3%82%A4%E3%83%ABWeb%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E9%96%8B%E7%99%BA-%E7%AC%AC4%E7%89%88-Sam-Ruby/dp/4274068668">RailsによるアジャイルWebアプリケーション開発 第4版</a>の日本語版が、Rails 3.x時点の執筆なのでインストールするバージョンもそれに合わせます。インストールが完了したら、バージョンを確認します。</p>
+
+<pre><code>$ gem install rails -v "~&gt;3.2.0" #3.2系の最新
+$ rails -v
+Rails 3.2.16
+</code></pre>
+
+<p>一度、最新の4.x系をインストールしていると正しく3.x系が表示されない場合があります。その時は次のコマンドで4.x系の不要なモジュールが残っていないか確認してみてください。</p>
+
+<pre><code>$ gem list | grep railties
+railties (4.0.2, 3.2.16)
+</code></pre>
+
+<p>削除するにはバージョンを指定してrailtiesを削除します。</p>
+
+<pre><code>$ gem uninstall railties -v "4.0.2"
+</code></pre>
+
+<p>また、Databaseに関してはローカルの開発ではSQLite3を使い、herokuのデプロイ後はPostgreSQLを使います。コマンドラインからデータを参照するためにsqlite3をインストールします。</p>
+
+<pre><code>$ brew install sqlite3
+==&gt; Downloading https://downloads.sf.net/project/machomebrew/Bottles/sqlite-3.8.2.m
+######################################################################## 100.0%
+==&gt; Pouring sqlite-3.8.2.mountain_lion.bottle.tar.gz
+==&gt; Caveats
+This formula is keg-only, so it was not symlinked into /usr/local.
+
+Mac OS X already provides this software and installing another version in
+parallel can cause all kinds of trouble.
+
+OS X provides an older sqlite3.
+
+Generally there are no consequences of this for you. If you build your
+own software and it requires this formula, you'll need to add to your
+build variables:
+
+    LDFLAGS:  -L/usr/local/opt/sqlite/lib
+    CPPFLAGS: -I/usr/local/opt/sqlite/include
+
+==&gt; Summary
+🍺  /usr/local/Cellar/sqlite/3.8.2: 9 files, 2.0M
+</code></pre>
+
+<p>SQLの結果が見やすいようsqlite3のコマンドにヘッダー表示と列幅調整モードのオプションを指定します。</p>
+
+<pre><code>vi ~/.bashrc
+     :
+alias sqlite3='sqlite3 -header -column'
+
+$ sqlite3 
+SQLite version 3.7.12 2012-04-03 19:43:07
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite&gt; .show
+     echo: off
+  explain: off
+  headers: on
+     mode: column
+nullvalue: ""
+   output: stdout
+separator: "|"
+    stats: off
+    width:
+</code></pre>
+
+<h2>IDEを選ぶ</h2>
+
+<p>これは完全に好みですが、3.x系でrailsプロジェクトをサポートしているAptana Studio 3をインストールします。NetBeans、EclipseプラグインであるRadRails 2は、3.xのサポートがありませんでした。</p>
+
+<p>Apatana: <a href="http://www.aptana.com/products/studio3/download">http://www.aptana.com/products/studio3/download</a></p>
+
+<p>次は、IDEの設定とHerokuへデプロイするまでの手順を記します。</p>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://blog.supermomonga.com/articles/rails/rails-version-railties.html">Railsのバージョンがなんかおかしい時はrailtiesをチェック</a></li>
+<li><a href="http://blog.ojimac.com/2012/04/25/%E6%9C%80%E8%BF%91%E3%81%AEruby%E3%80%81rails%E3%81%AE%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%81%8B%E3%82%89%E3%80%81heroku%E3%81%B8%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%BE%E3%81%A7%E3%81%AE/">最近のRuby、Railsの環境構築から、herokuへデプロイまでのやり方を教えてもらいました</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/14/install-ruby-2-dot-0-on-mac/">Mac OS XにRuby 2.0をインストールする</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMが必要です。（Homebrew単体でもできるようですね！homebrewでMacに複数バージョンのrubyをインストールする）</p>
+
+<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+
+<ul>
+<li>libyaml</li>
+<li>openssl</li>
+<li>readline (推奨)</li>
+</ul>
+
+
+<p>インストール可能なバージョンを確認</p>
+
+<pre><code> $ brew versions ruby
+ 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
+ 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
+ 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
+ 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
+        :
+</code></pre>
+
+<p>2.0.0-p247を指定します。</p>
+
+<pre><code>$ cd /usr/local
+$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
+</code></pre>
+
+<p>rdocのドキュメントも合わせてインストールします。</p>
+
+<pre><code>$ brew install ruby --with-doc
+==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
+Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
+==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
+==&gt; make
+==&gt; make install
+==&gt; Caveats
+NOTE: By default, gem installed binaries will be placed into:
+  /usr/local/opt/ruby/bin
+
+You may want to add this to your PATH.
+==&gt; Summary
+🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
+</code></pre>
+
+<p>環境変数を設定します。</p>
+
+<pre><code>$ vi ~/.bash_profile
+
+RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
+RI="--format ansi" # riを256カラーで表示
+PAGER="less -R" # ページャーにlessを指定
+PATH=$RUBY_HOME/bin:$PATH 
+
+export PATH PAGER RUBY_HOME RI
+~
+</code></pre>
+
+<p>インストールされたか確認</p>
+
+<pre><code>$ ruby -v
+ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
+</code></pre>
+
+<p>リファレンスを見る</p>
+
+<pre><code>$ ri GC --format ansi
+GC
+
+(from ruby core)
+------------------------------------------------------------------------------
+The GC module provides an interface to Ruby's mark and sweep garbage
+collection mechanism.
+        :
+</code></pre>
+
+<p>カラー表示されていればOKです。</p>
+
+<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
+
+<pre><code>$ gem install byebug
+Building native extensions.  This could take a while...
+Successfully installed byebug-2.3.1
+        :
+</code></pre>
+
+<p>次はRailsの開発環境を整えます。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/01/06/rails/">Mac OS XにRails開発環境を構築する</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/14/install-ruby-2-dot-0-on-mac/">Mac OS XにRuby 2.0をインストールする</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

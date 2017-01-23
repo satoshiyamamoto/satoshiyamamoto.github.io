@@ -1,0 +1,137 @@
+---
+layout: post
+title: "Java CI環境(Jenkins+α)構築のおさらい その2 Mavenリポジトリ構築編"
+date: 2014-02-23 10:23:41 +0900
+comments: true
+categories: 
+---
+
+前回に引き続きJennkinsでJavaのCI環境を構築していきます。構築する環境は以下の通りです。
+
+## 環境
+
+* CentOS 6.5 (x86_64)
+* Subversion 1.7.4 (+Apache 2.2 WebDAV)
+* Nexus OSS 2.7.1-01
+* Jenkins 1.551
+
+## Nexus OSSのインストール
+
+NexusはMavenの成果物管理ツールとして最も多く使われているプロダクトです。まず、Nexusをインストールする前にOSの起動ユーザを作成します。
+
+    # groupadd nexus
+    # useradd -g nexus -s /bin/bash nexus
+
+Nexus OSSのバンドル版をSonatypeのページからダウンロードします。
+
+    # cd /usr/local/src
+    # wget http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz
+
+ダウンロードが完了したら、tar.gzを/usr/localに解凍し権限を変更します。
+
+    # tar zxvf nexus-latest-bundle.tar.gz 
+    # mv nexus-[version] sonatype-work /usr/local
+    # choen -R nexus. nexus-[version] sonatype-work
+
+続いて起動スクリプトの編集と自動起動の設定を行います。(JAVA_HOMEが設定されているものとします)
+
+    # cd /etc/init.d/
+    # cp /usr/local/nexus/bin/nexus .
+    # chmod 755 ./nexus
+    # vi ./nexus
+        :
+    # Set this to the root of the Nexus installation
+    NEXUS_HOME="/usr/local/nexus"
+        :
+    # NOTE - This will set the user which is used to run the Wrapper as well as
+    #  the JVM and is not useful in situations where a privileged resource or
+    #  port needs to be allocated prior to the user being changed.
+    RUN_AS_USER=nexus
+
+chkconfigに/etc/init.d/nexusを追加しサーバーを起動します。
+    
+    # cd /etc/init.d/
+    # chkconfig --add nexus
+    # chkconfig --levels 345 nexus on
+    # service nexus start
+    Starting Sonatype Nexus...
+
+ブラウザで http://localhost:8081/nexus にアクセスし次の画面が表示されていれば成功です。
+
+![Nexus Capture](/images/20140222/nexus_capture.png)
+
+## Maven設定ファイルの編集
+
+Mavenプロジェクトでデプロイを行う際、Nexusにアクセスできるユーザが必要です。Nexusイントール時に作成されている既存ユーザから、今回はdeploymentユーザを使ってデプロイを行います。既存ユーザと役割は下記のとおりです。
+
+* admin: 管理者ユーザ。Nexusの管理とデプロイなど全ての機能が利用可能です
+* deploymenet: デプロイユーザ。リポジトリの参照とデプロイが可能です
+* anonymous: 匿名ユーザ。publicリポジトリの参照がです
+
+$M2_HOME/con/settings.xml にdeploymenetユーザを追加します。
+
+    $ vi $M2_HOME/conf/settings.xml
+        :
+    <servers>
+      <server>
+        <id>nexus</id>
+        <username>deployment</username>
+        <password>deployment123</password>
+      </server>
+    </servers>
+
+## Mavenプロジェクトでデプロイの設定
+
+pom.xmlのデプロイ管理の要素に、SnapthotsとReleasesリポジトリの設定を追加します。具体的には下記のようになります。また、リポジトリのIDは前述のID(nexus)と一致している必要があります。
+
+
+    <distributionManagement>
+      <repository>
+        <id>nexus</id>
+        <name>Releases</name>
+        <url>http://localhost:8081/nexus/content/repositories/releases/</url>
+      </repository>
+      <snapshotRepository>
+        <id>nexus</id>
+        <name>Snapshots</name>
+        <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
+      </snapshotRepository>
+    </distributionManagement>
+
+## Maven Plug-inでリリース
+
+ここまで準備ができたら、最後にMavenのリリースプラグインを使ってデプロイを行います。まずは、下記のコマンドでSnapshotsリポジトリに配備出来るか確認します。
+
+    $ mvn deploy
+
+Mavenのrelease:prepareおよびrelease:performを実行することで、SCMでリリースビルドのタグ付け、さらにNexusのReleaseリポジトリにデプロイまで一括して行えます。
+まず、release:prepareの質問に回答しリリースの準備を行います。
+
+    $ mvn release:prepare
+        :
+    [INFO] Checking dependencies and plugins for snapshots ...
+    What is the release version for "project"? (name.satoshi.yamamoto:project) 1.0: :
+    What is SCM release tag or label for "project"? (name.satoshi.yamamoto:project) project-1.0: :
+    What is the new development version for "project"? (name.satoshi.yamamoto:project) 1.1-SNAPSHOT: :
+
+最後にrelease:performでReleaseリポジトリにデプロイします。
+
+    $ mvn release:perform
+         :
+    [INFO] Uploaded: http://localhost:8081/nexus/content/repositories/releases/name/satoshi/yamamoto/project/1.0/project-1.0.jar (3 KB at 8.4 KB/sec)
+         :
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time: 14.967 s
+    [INFO] Finished at: 2014-02-27T15:04:22+09:00
+    [INFO] Final Memory: 9M/28M
+    [INFO] ------------------------------------------------------------------------
+
+以上でMavenリポジトリ編を終わります。ここまで来れば後はJenkinsのインストールとJobを作成するのみです。ふぅぅ...。
+
+## 参考
+
+* [イマドキのIDE事情 (129) リポジトリ管理ツール「Nexus」でMavenをさらに活用しよう! | マイナビニュース](http://news.mynavi.jp/column/ide/129/)
+* [試験管のなかのコード :: Maven2 の release プラグインにチャレンジ](http://www.in-vitro.jp/blog/index.cgi/Maven/20081007_01.htm)
+* [Maven + Jenkins + Sonatype Nexus でビルド環境を構築](http://green-tea-stalk.blogspot.jp/2012/09/maven-jenkins-sonatype-nexus.html)

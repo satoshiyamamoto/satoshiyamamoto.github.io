@@ -1,0 +1,118 @@
+---
+layout: post
+title: "Java8の新機能に触れる(4) Date and Time"
+date: 2014-07-28 14:55:00 +0900
+comments: true
+categories: 
+---
+　Java8で新しくなった、Date and Time API (JSP-310）について調べました。新しいDate and Timeパッケージは、次の考え方を中心に設計されています。
+
+* 不変な値を持つクラス
+* ドメイン駆動設計
+* 暦 (Chronology) の区別
+
+　既存のクラスには、スレッド・セーフではないSimpleDateFormatクラスや、直感的でないAPIなどの使い勝手に問題がありました。これを受け、Joda-Timeライブラリの作者がスペックリードとなり開発を進められたものです。
+
+## 動作環境
+
+* Mac OS X 10.8.5
+* JDK 1.8.0 u11
+
+## オブジェクトの生成
+
+オブジェクトは、now または of のファクトリメソッドを使って生成します。別の型から変換するには from メソッドを使います。また、日付文字列を解析するには parse メソッドを使います。
+
+{% codeblock lang:java %}
+// 現在の日付と時刻
+LocalDateTime timePoint = LocalDateTime.now();
+// 値から作成
+LocalDate.of(2014, Month.JULY, 28);
+LocalDate.of(2014, 7, 28);
+// 文字列から作成
+LocalDate.parse("2014-07-28");
+
+// 今日の帰宅時に利用した電車
+LocalTime.of(17, 18);
+// 文字列から作成
+LocalTime.parse("10:15:30");
+{% endcodeblock %}
+
+## 日付のフォーマット
+
+日付のフォーマットは、DateTimeクラスの format メソッドを使います。
+
+{% codeblock lang:java %}
+// ISO形式は列挙型を
+timePoint.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+// 文字列で指定する場合
+timePoint.format(DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss", Locale.JAPAN));
+{% endcodeblock %}    
+
+## 値の取得と変更
+
+値の取得は、標準的なgetterを使います。
+
+{% codeblock lang:java %}
+// => 2014-07-28
+LocalDate theDate = timePoint.toLocalDate();
+// => 07
+Month month = timePoint.getMonth();
+// => 31
+int day = timePoint.getDayOfMonth();
+// => xxx
+timePoint.getSecond();
+{% endcodeblock %}    
+
+timeパッケージのクラスは不変クラスのため、破壊的メソッドは提供されていません。値を変更するには、with または plus メソッドを使って新しいオブジェクトを取得します。
+
+{% codeblock lang:java %}
+// 月の10日を指定し、さらに2010年を指定
+LocalDateTime thePast = timePoint.withDayOfMonth(10).withYear(2010);
+// 値とフィールドのペア
+LocalDateTime yetAnother = thePast.plusWeeks(3).plus(3, ChronoUnit.WEEKS);
+{% endcodeblock %}
+
+また、with メソッドは TemporalAdjusters クラスで実装された日付操作のコードブロックを受け取ることも出来ます。
+
+{% codeblock lang:java %}
+LocalDateTime foo = timePoint.with(TemporalAdjusters.lastDayOfMonth());
+LocalDateTime bar = timePoint.with(TemporalAdjusters.previousOrSame(DayOfWeek.WEDNESDAY));
+{% endcodeblock %}
+
+## Unixタイムスタンプ
+
+timeパッケージでは、Unixのエポックタイムをラップした Instant クラスを使って表現します。
+
+{% codeblock lang:java %}
+// 現在時刻
+Instant.now();
+// ミリ秒から
+Instant.ofEpochMilli(System.currentTimeMillis());
+// DateTimeクラスから
+ZonedDateTime.now().toInstant();
+LocalDateTime.now().toInstant(zoneOffset);
+// 旧java.utilクラスから
+Calendar.getInstance().toInstant();
+new Date().toInstant();
+{% endcodeblock %}
+
+## タイムゾーンの扱いについて
+
+タイムゾーンを考慮した時差の補正には、ZoneId、ZoneOffsetクラスを使います。
+
+{% codeblock lang:java %}
+// ゾーンの正式名を指定
+ZoneId zoneId = ZoneId.of("Asia/Tokyo");
+// 標準時刻との時差
+ZoneOffset zoneOffset = ZoneOffset.of("+09:00");
+// タイムゾーンを指定してインスタンスを生成
+ZonedDateTime zoned = ZonedDateTime.of(timePoint, zoneId);
+{% endcodeblock %}
+
+## まとめ
+
+纏め中...
+
+## 参考
+* [Java SE 8 Date and Time](http://www.oracle.com/technetwork/jp/articles/java/jf14-date-time-2125367-ja.html)
+* [Java8日付時刻APIの使いづらさと凄さ - きしだのはてな](http://d.hatena.ne.jp/nowokay/20130917)

@@ -1,0 +1,70 @@
+---
+layout: post
+title: "Java CI環境(Jenkins+α)構築のおさらい その3 Jenkins構築編"
+date: 2014-03-01 11:22:33 +0900
+comments: true
+categories: 
+---
+SVN、Mavenリポジトリの構築が終わったので、いよいよJenkninsのインストールに移ります。SVN、Mavenの構築が正しくできていれば、Jenkinsそのもののインストールはさほど難しいものではありません。インストールする環境は下記のとおりです。
+
+## 環境
+
+* CentOS 6.5 (x86_64)
+* Subversion 1.7.4 (+Apache 2.2 WebDAV)
+* Nexus OSS 2.7.1-01
+* Jenkins 1.551
+
+## Jenkinsのインストール
+
+Yumでインストールするので、Jenkinsの[サイト](http://pkg.jenkins-ci.org/redhat/jenkins.repo)から.repoファイルを取得し、ローカルに取り込みます。
+
+    # wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat/jenkins.repo
+    # rpm --import http://pkg.jenkins-ci.org/redhat/jenkins-ci.org.key
+    # yum clean all
+    # yum install -y jenkins
+
+インストールが終了したら自動起動の設定を行います。
+
+    # cd /etc/init.d/
+    # chkconfig --add jenkins
+    # chkconfig jenkins on
+    # service jenkins start 
+    Starting Jenkins                                           [  OK  ]
+
+ブラウザで http://localhost:8080/ にアクセスし、次の画面が表示されていれば成功です。
+
+![Jenkins Capture](/images/20140301/jenkins1.png)
+
+## プラグインのインストール
+Jenkinsの管理 > プラグインの管理 > インストール済みから次のプラグインがインストールされていることを確認します。インストールされていない場合は、利用可能タブからインストールします。
+
+* Subversion Plug-in
+* Maven Integration plugin
+
+## Jobの作成
+
+新規Job作成 からジョブ名を入力し、Maven2/3プロジェクトのビルドを作成します。ソースコード管理でSVNのリポジトリを指定します。
+(あらかじめ、JDK と Mavenの設定をJenkinsの管理 > システムの管理 で済ませておきます。)
+![SCM](/images/20140301/jenkins2.png)
+
+続いて、Mavenビルドのゴールを設定します。ビルドのゴールには、maven-release-pluginの prepare、perform を続けて入力します。
+
+![Maven](/images/20140301/jenkins3.png)
+
+## ビルド実行
+
+Jobの一覧からビルドを実行します。すると、Jenkinsで設定したとおり、SCMからソースコードをチェックアウト、その後Mavenプロジェクトのビルドとデプロイ、さらにSVNのタグ付けまでを一気に行います。ビルドが成功したら、W(ether)の列に晴れのアイコンが表示されているはずです。
+![Build](/images/20140301/jenkins4.png)
+
+
+最後に、SVN、Nexusそれぞれのリポジトリに成果物がリリースされていることを確認します。
+
+## おわりに
+
+数回にわたってCI環境を構築してきました。NexusへのデプロイやMaven Releaseプラグインなど、普段仕事で使ってはいるものの、騙しだましできたのが自分で構築したことで基礎しっかりとを理解することができたと思います。
+
+また、SCM、Nexus、Jenkinsを組み合わせることで開発にリズムが生まれました。Jenkinsは、様々な作業を自動化出来る便利なツールです。良いアイデアを思いついた際には改めて記事に残したいと思います。
+
+## 参考
+[徒然日記: Maven + Jenkins + Sonatype Nexus でビルド環境を構築](http://green-tea-stalk.blogspot.jp/2012/09/maven-jenkins-sonatype-nexus.html)
+[CentOS/RedHatにJenkinsをインストールする手順 (yum, RPM) | OSCALOG](http://oscasierra.net/2013/05/jenkins-to-redhat/)

@@ -1,0 +1,116 @@
+---
+layout: post
+title: "Rails開発環境の構築からHerokuデプロイまで"
+date: 2014-01-17 17:03:11 +0900
+comments: true
+categories: 
+---
+
+Railsに対応したIDEとしては、NetBeansが有名ですが私が思いたた時にはすでに開発停止になっていたようです。Eclipseプラグインとして提供されていたRadRailsもバージョン3.xは未対応です。多くの方はVim/Emacsで十分かと思いますが、Java屋としてはIDEは不可欠でして消去法的にAptana Studio 3で開発環境を整えることとします。
+
+## Aptana Studioのセットアップ
+下記のURLからStundard版をダウンロードします。
+
+* Apatana: http://www.aptana.com/products/studio3/download
+
+アプリケーションフォルダにインストールしたら、快適に動作するようメモリの割当を2Mに増やします。(自己責任でお願いします)
+
+    $ vi /Applications/Aptana Studio 3/AptanaStudio3.app/Contents/MacOS/AptanaStudio3.ini
+        :
+      -vmargs
+      -Xm2048sm
+      -Xm2048xm
+ 
+サーバーのデバッグ起動を有効にするためにruby-debug-ideをインストールします。これで、プログラムがブレークポイントに差し掛かるとパースペクティブがデバックモードに切り替わります。
+
+    $ gem install ruby-debug-ide
+    Fetching: ruby-debug-ide-0.4.22.gem (100%)
+    Building native extensions.  This could take a while...
+    Successfully installed ruby-debug-ide-0.4.22
+    1 gem installed
+    Installing ri documentation for ruby-debug-ide-0.4.22...
+    Installing RDoc documentation for ruby-debug-ide-0.4.22...
+
+## Herokuへのデプロイ
+
+Herokuは、Railsの実行環境を提供している老舗のPaaS企業です。Facebookアプリのデフォルト環境であったり、Rub on Railsの他に、Node.ja、Scala、Clojureなど様々な言語の利用が可能です。まず、下記のURLからアカウントを作成しSSHの公開鍵を登録しておきます。
+
+* Heroku: https://www.heroku.com/
+
+公開鍵は、Account編集ページのSSH Keys欄で登録できます。公開鍵は、下記のコマンドで予めクリップボードにコピーしておくと楽です。
+
+    $ cat ~/.ssh/id_rsa.pub | pbcopy
+
+登録が完了したらHeroku Toolbeltをインストールします。Heroku Toolbeltは、Heroku Appsを管理するためのコマンドラインツールです。インストールが終わったら、herokuコマンドでログインできるか試してみます。
+
+* Heroku Toolbelt: https://toolbelt.heroku.com/
+
+コマンドは次のとおりです。
+
+    $ heroku login
+    Enter your Heroku credentials.
+    Email: satoshi@yamamoto.name
+    Password (typing will be hidden): ********
+    Authentication successful.
+
+無事ログインできました。herokuコマンドからでも公開鍵の登録やアドオンの設定が可能です。詳しくはheroku --helpコマンドか、ホームページを参照してください。
+
+### ClearDB (MySQL)アドオンの設定
+
+HerokuのRails環境では、デフォルトでPostgreSQLが指定されていますが、アドオンでClearDBというMySQLサーバーに変更することができます。アドオンを利用するには、予めクレジットカードの番号を登録しておく必要があります。下記のコマンドでアドオンを追加します。
+
+    $ heroku addons:add cleardb:ignite
+    Adding cleardb on [app name]... done, v3 (free)
+    Use `heroku addons:docs cleardb` to view documentation.
+
+heroku configコマンドで接続情報を確認します。接続URLからユーザー名、パスワードなど接続するために必要な情報が参照できます。この値を使うことで直接ClearDBにも接続できます。
+
+    $ heroku config | grep CLEARDB_DATABASE_URL
+    CLEARDB_DATABASE_URL: mysql://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true
+    
+Herokuの環境変数に上記の接続文字列を設定します。
+
+    $ heroku config:set DATABASE_URL='mysql2://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true'
+     
+続いてRailsがproduction環境でMySQLを使用するようにGemfileとdatabase.ymlと設定ファイルを書き換えます。
+
+    $ vi Gemfile
+    gem 'sqlite3', :group => [:development, :test]
+    group :production do
+      gem 'mysql2'
+    end
+ 
+（※database.yml修正しなくてもMySQL使えてますが念のため...)
+
+    $ vi config/database.yml
+    production:
+      adapter: mysql2
+      username: [username]
+      password: [password]
+      host: [hostname]
+      database: [database]
+          
+### HerokuからSMTPでメールを送信する
+
+herokuコマンドでSendGridのアドオンを追加します。
+
+    $ heroku addons:add sendgrid:starter
+
+続いてconfig/environments/production.rbにActionMailerの設定を記述します。
+
+    # Log the query plan for queries taking more than this (works
+    # with SQLite, MySQL, and PostgreSQL)
+    # config.active_record.auto_explain_threshold_in_seconds = 0.5
+    config.action_mailer.smtp_settings = {
+      address:        'smtp.sendgrid.net',
+      port:           '587',
+      authentication: :plain,
+      user_name:      ENV['SENDGRID_USERNAME'],
+      password:       ENV['SENDGRID_PASSWORD'],
+      domain:         'herokuapp.com'
+    }
+
+### 参考
+
+* [Heroku+Rails4+Devise+MySQL+Redis - 成らぬは人の為さぬなりけり](http://straitwalk.hatenablog.com/entry/2013/08/11/004648)
+* [ClearDB MySQL Database | Heroku Dev Center](https://devcenter.heroku.com/articles/cleardb) 
