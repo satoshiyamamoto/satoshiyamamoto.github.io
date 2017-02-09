@@ -1,0 +1,1048 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="今まで自分で構築する機会がなかったので自分の理解を再確認する意味も兼ねて手順を残しておきます。JenkinsでSubversionからMavenプロジェクトをチェックアウトし、タグ付け、Nexusへのデプロイするところまでをゴールとします。 環境 CentOS 6.5 (x86_64) &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/page/3">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/21/java-ci-1/">Java CI環境(Jenkins+α)構築のおさらい その1 SVN構築編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-21T10:23:41+09:00" pubdate data-updated="true">Feb 21<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>今まで自分で構築する機会がなかったので自分の理解を再確認する意味も兼ねて手順を残しておきます。JenkinsでSubversionからMavenプロジェクトをチェックアウトし、タグ付け、Nexusへのデプロイするところまでをゴールとします。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>CentOS 6.5 (x86_64)</li>
+<li>Subversion 1.7.4 (+Apache 2.2 WebDAV)</li>
+<li>Nexus OSS 2.7.1-01</li>
+<li>Jenkins 1.551</li>
+</ul>
+
+
+<h2>SVNのインストール</h2>
+
+<p>JenkinsからHTTP経由でリポジトリにアクセスできるようにするため、SVNリポジトリの作成とApacheでWebDAVを構築を行います。なお、SVNの認証方式については、全てのユーザが読み書きできるものとして割愛します。必要なパッケージは次のとおりです。</p>
+
+<ul>
+<li>httpd: 2.2.15</li>
+<li>mod_dav_svn: 1.7.4</li>
+<li>subversion: 1.7.4</li>
+</ul>
+
+
+<p>CentOSのレポジトリでは、SVNのバージョンが1.6しか提供されていません。1.7をインストールするには、別途、RPMForgeのリポジトリからRPMを取得します。</p>
+
+<p>/etc/yum.repos.dにRPMForgeのレポジトリ情報を追加します。</p>
+
+<pre><code># cd /usr/local/src
+# wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.i686.rpm
+# rpm -ivh rpmforge-release-0.5.2-2.el6.rf.i686.rpm
+</code></pre>
+
+<p>rpmforge-extraのリポジトリを有効にします。</p>
+
+<pre><code># vi /etc/yum.repos.d/rpmforge.repo
+    : 
+[rpmforge-extras]
+name = RHEL $releasever - RPMforge.net - extras
+baseurl = http://apt.sw.be/redhat/el6/en/$basearch/extras
+mirrorlist = http://apt.sw.be/redhat/el6/en/mirrors-rpmforge-extras
+#mirrorlist = file:///etc/yum.repos.d/mirrors-rpmforge-extras
+enabled = 1   # &lt;--ここを修正
+</code></pre>
+
+<p>Yumでこれらのパッケージをインストールします。</p>
+
+<pre><code># yum clean all
+# yum install -y subversion httpd mod_dav_svn
+</code></pre>
+
+<h2>SVNリポジトリの作成とWebDAV対応</h2>
+
+<p>インストールが完了したら続いてSVNのリポジトリを作成します。SVNのの設定は、単一のリポジトリを運用するか、または複数運用するかによって設定の内容が変わります。前者は、リポジトリ追加のたびにApacheの再起動が必要になるため、今回は複数のリポジトリを公開する設を行います。</p>
+
+<p>SVNで複数のリポジトリを公開吸う場合、SVNParentPathでレポジトリの親ディレクトリを指定します。具体的なディレクトリ階層は下記のとおりです。</p>
+
+<pre><code> /var/www          # DocumentRoot
+ ├── cgi-bin
+ ├── error
+ ├── html
+ ├── icons
+ └── svn           # SVNParentPath
+     └── repos     # Repository
+</code></pre>
+
+<p>svnのルートディレクトリを作成し、その配下にレポジトリを作成します。</p>
+
+<pre><code> # mkdir /var/www/svn
+ # cd /var/www/svn
+ # svnadmin create repos
+ # chown -R apache. repos
+</code></pre>
+
+<p>mod_dav_svnの設定内容は次のとおりです。</p>
+
+<pre><code># vi /etc/httpd/conf.d/subversion.conf
+    : 
+LoadModule dav_svn_module     modules/mod_dav_svn.so
+LoadModule authz_svn_module   modules/mod_authz_svn.so
+LoadModule dontdothat_module  modules/mod_dontdothat.so
+    : 
+&lt;Location /svn&gt;
+   DAV svn
+   SVNParentPath /var/www/svn
+   SVNListParentPath on
+   SVNAdvertiseV2Protocol off
+
+   # Limit write permission to list of valid users.
+   #&lt;LimitExcept GET PROPFIND OPTIONS REPORT&gt;
+   #   # Require SSL connection for password protection.
+   #   # SSLRequireSSL
+
+   #   AuthType Basic
+   #   AuthName "Authorization Realm"
+   #   AuthUserFile /path/to/passwdfile
+   #   Require valid-user
+   #&lt;/LimitExcept&gt;
+&lt;/Location&gt;
+</code></pre>
+
+<p>設定後、Apacheを再帰動しブラウザで <a href="http://localhost/svn/repos">http://localhost/svn/repos</a> にアクセスし下記の画面が見れていればOKです。</p>
+
+<p><img src="/images/20140221/svn_repos_capture.png" alt="SVN Virtual Host" /></p>
+
+<h2>プロジェクトをSVNにインポートする</h2>
+
+<p>リポジトリの構築が終わったらテスト用のプロジェクトを作成します。svnコマンドでプロジェクト階層の雛形をインポートします。</p>
+
+<pre><code> $ cd /tmp
+ $ mkdir -p project/{trunk,branches,tags}
+ $ tree project
+ project/
+ ├── branches
+ ├── tags
+ └── trunk
+ $ svn import project http://localhost/svn/repos/project -m "initial commit"
+     :
+ リビジョン 1 をコミットしました。
+</code></pre>
+
+<p>trunkをチェックアウトしMavenプロジェクトを作成します。</p>
+
+<pre><code>$ svn checkout http://localhost/svn/repos/project/trunk
+$ cd trunk/
+$ mvn archetype:generate \
+    -DgroupId=name.satoshi.yamamoto \
+    -DartifactId=project \
+    -DarchetypeArtifactId=maven-archetype-quickstart 
+</code></pre>
+
+<p>Mavenプロジェクトが作成できたら、pom.xmlにSVNのリポジトリ情報を追加します。</p>
+
+<pre><code>&lt;scm&gt;
+  &lt;connection&gt;scm:svn:http://localhost/svn/repos/project/trunk/project&lt;/connection&gt;
+&lt;/scm&gt;
+</code></pre>
+
+<p>targetディレクトリをバージョン管理下から外すため、svn:ignoreプロパティを設定します。その後、プロジェクトをtrunkにコミットします。</p>
+
+<pre><code>$ svn propset svn:ignore target .
+属性 'svn:ignore' を '.' に設定しました
+
+$ svn add project
+$ svn commit
+    :
+リビジョン 2 をコミットしました。
+</code></pre>
+
+<p>最後にブラウザから追加したプロジェクトが表示されていれば成功です。次はMavenリポジトリのnexusを構築します。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.gside.org/Gentoo/subversion/subversion.html">Subversionのインストールと設定(Apache編)</a></li>
+<li><a href="http://www.in-vitro.jp/blog/index.cgi/Maven/20081007_01.htm">試験管のなかのコード :: Maven2 の release プラグインにチャレンジ</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/13/cygwin-with-clipboard/">Cygwinでクリップボードと仲良くなる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T19:49:14+09:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>getclip/putclipのインストール</h2>
+
+<p>Cygwinのコンソールからクリップボードにアクセスするgetclipとputclipをインストールします。これらはcygutils-extraパッケージに含まれています。</p>
+
+<h2>文字化け対策</h2>
+
+<p>putclip/getclipは、デフォルトのままでは以下のとおり2バイト文字が文字化けしてしまいます。Windowsに戻って他のアプリケーションに貼付けすると残念な結果に&hellip;</p>
+
+<pre><code>$ echo $LANG
+ja_JP.UTF-8@cjknarrow
+
+$ date | putclip
+2014蟷ｴ 2譛・13譌･ 譛ｨ譖懈律 21:56:25 JST # 結果
+</code></pre>
+
+<p>これはnkfを使って文字コードを変換することで解消できます。sourceforgeからnkfのソースを取得しmakeインストールします。</p>
+
+<pre><code>$ tar zxvf nkf-2.1.3.tar.gz
+$ cd nkf-2.1.3
+$ make &amp;&amp; make install
+</code></pre>
+
+<p>インストールが終わったらnkfにパスを通し文字コードを変換してみます。</p>
+
+<pre><code>$ date | nkf -s | putclip
+2014年 2月 13日 木曜日 22:14:36 JST  # UTF-8 -&gt; Shift_JIS
+
+$ getclip | nkf -w
+2014年 2月 13日 木曜日 22:14:36 JST  # Shift_JIS -&gt; UTF-8
+</code></pre>
+
+<p>デフォルトでこの挙動になるようaliasを設定しておくと便利です。</p>
+
+<pre><code>vi .bashrc
+    :
+alias getclip='getclip | nkf -w'
+alias putclip='nkf -s | putclip'
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://d.hatena.ne.jp/edvakf/20101017/1287285851">cygwin の putclip/getclip の文字化け対策 &ndash; by edvakf in hatena</a></li>
+<li><a href="http://futurismo.biz/archives/1364">Cygwin使いならば絶対に身につけておきたいコマンド5選+apt-cyg | Futurismo</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/12/install-tmux-on-cygwin/">Cygwin 64bit版にTmuxをインストールする</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-12T15:58:25+09:00" pubdate data-updated="true">Feb 12<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ついにCygwinでlibeventがビルドできるようになりました。そこで、長年の悲願だったCyginwでTmuxを動かしてみたいと思いますす。</p>
+
+<h2>バージョン情報</h2>
+
+<ul>
+<li>Tmux: 1.9</li>
+<li>libevent: 2.0.21-stable</li>
+<li>Cygwin x86_64: 1.7.28</li>
+<li>Windows 7 64bit: SP1</li>
+</ul>
+
+
+<p><img src="/images/cygwin-tmux.png" alt="Capture" /></p>
+
+<h2>インストールにあたって</h2>
+
+<p>Cygwin 64bit対応でパッケージリポジトリの階層が変わったため、<a href="https://github.com/rcmdnk/apt-cyg">apt-cyg</a>がそのままでは正しく機能しなくなってます。なので、今回は従来のsetup.exeで依存パッケージをインストールを行います。</p>
+
+<p>また、libeventのインストール先は、/usrとします。（/usr/localでは、tmuxがlibeventを見つけられずエラーになりました。）</p>
+
+<h2>依存ライブラリの一覧</h2>
+
+<p>Cygwinのsetup.exeからlibevent、Tmuxのビルドに必要なライブラリをインストールします。依存ライブラリは次の通りです。</p>
+
+<ul>
+<li>autoconf</li>
+<li>gcc-core</li>
+<li>git</li>
+<li>make</li>
+<li>ncurses</li>
+<li>libncurses-devel</li>
+<li>libtool</li>
+<li>pkg-config</li>
+<li>wget</li>
+</ul>
+
+
+<h2>libeventのビルドとインストール</h2>
+
+<p>Githubから安定版のソースをダウンロードしてきます。</p>
+
+<pre><code>$ cd /usr/local/src
+$ wget https://github.com/libevent/libevent/archive/release-2.0.21-stable.tar.gz
+</code></pre>
+
+<p>autogen.shからconfigureを生成します。</p>
+
+<pre><code>$ ./autogen.sh
+</code></pre>
+
+<p>そうすると、Makefile.amでテストが失敗するので、以下の行をコメントアウトします。</p>
+
+<pre><code>$ vi test/Makefile.am
+    :
+22 #TESTS = $(top_srcdir)/test/test.sh
+</code></pre>
+
+<p>再度autogen.shを実行すると正常終了します。</p>
+
+<pre><code>$ ./autogen.sh
+</code></pre>
+
+<p>prefixオプションでインストール先を指定し、ビルド＆インストールします。</p>
+
+<pre><code>$ ./configure --prefix=/usr
+$ make &amp;&amp; make install
+</code></pre>
+
+<h2>Tmuxのインストール</h2>
+
+<p>SourceforgeからGitでソースコードを取得します。</p>
+
+<pre><code>$ git clone http://git.code.sf.net/p/tmux/tmux-code
+</code></pre>
+
+<p>autogen.shでconfigureを生成しmake &amp;&amp; installします。</p>
+
+<pre><code>$ ./autogen.sh
+$ ./configure --prefix=/usr
+$ make &amp;&amp; make install
+</code></pre>
+
+<p>インストールされているか確認します。</p>
+
+<pre><code>$ which tmux
+/usr/bin/tmux
+
+$ tmux -V
+tmux 1.9
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://numa08.hateblo.jp/entry/2013/07/27/094528">windowsだってtmuxを使いたい &ndash; @numa08　猫耳帽子の女の子</a></li>
+<li><a href="http://atdxfe.hatenablog.com/entry/2013/11/27/031058">tmuxがCygwin上で動作するようになったのでインストール手順をまとめてみた &ndash; atdxfe&rsquo;s Blog</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/11/raile-migrate-with-mysql/">HerokuのClearDBでdb:migrateを実行する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T20:47:00+09:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Heroku上のPostgreSQLやMySQLでは、rails generate migrationで生成したスクリプトが下記のエラーで実行できない場合があります。</p>
+
+<pre><code>    PG::Error: ERROR:  column "number" cannot be cast to type integer
+: ALTER TABLE "tweets" ALTER COLUMN "number" TYPE integer
+</code></pre>
+
+<p>その場合は、migrateスクリプトのadd_columnメソッドをコメントアウトし、SQLでDDL文を直接実行することで解決できます。</p>
+
+<pre><code># def change
+  #add_column :line_items, :quantity, :interger, default: 1 #コメントアウト
+  connection.execute(%q{
+    alter table line_items
+    add column quantity integer default 1
+  })
+end
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/12603498/rails-migration-error-w-postgres-when-pushing-to-heroku">postgresql &ndash; Rails Migration Error w/ Postgres when pushing to Heroku &ndash; Stack Overflow</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/17/rails-ide/">Rails開発環境の構築からHerokuデプロイまで</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T17:03:11+09:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Railsに対応したIDEとしては、NetBeansが有名ですが私が思いたた時にはすでに開発停止になっていたようです。Eclipseプラグインとして提供されていたRadRailsもバージョン3.xは未対応です。多くの方はVim/Emacsで十分かと思いますが、Java屋としてはIDEは不可欠でして消去法的にAptana Studio 3で開発環境を整えることとします。</p>
+
+<h2>Aptana Studioのセットアップ</h2>
+
+<p>下記のURLからStundard版をダウンロードします。</p>
+
+<ul>
+<li>Apatana: <a href="http://www.aptana.com/products/studio3/download">http://www.aptana.com/products/studio3/download</a></li>
+</ul>
+
+
+<p>アプリケーションフォルダにインストールしたら、快適に動作するようメモリの割当を2Mに増やします。(自己責任でお願いします)</p>
+
+<pre><code>$ vi /Applications/Aptana Studio 3/AptanaStudio3.app/Contents/MacOS/AptanaStudio3.ini
+    :
+  -vmargs
+  -Xm2048sm
+  -Xm2048xm
+</code></pre>
+
+<p>サーバーのデバッグ起動を有効にするためにruby-debug-ideをインストールします。これで、プログラムがブレークポイントに差し掛かるとパースペクティブがデバックモードに切り替わります。</p>
+
+<pre><code>$ gem install ruby-debug-ide
+Fetching: ruby-debug-ide-0.4.22.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed ruby-debug-ide-0.4.22
+1 gem installed
+Installing ri documentation for ruby-debug-ide-0.4.22...
+Installing RDoc documentation for ruby-debug-ide-0.4.22...
+</code></pre>
+
+<h2>Herokuへのデプロイ</h2>
+
+<p>Herokuは、Railsの実行環境を提供している老舗のPaaS企業です。Facebookアプリのデフォルト環境であったり、Rub on Railsの他に、Node.ja、Scala、Clojureなど様々な言語の利用が可能です。まず、下記のURLからアカウントを作成しSSHの公開鍵を登録しておきます。</p>
+
+<ul>
+<li>Heroku: <a href="https://www.heroku.com/">https://www.heroku.com/</a></li>
+</ul>
+
+
+<p>公開鍵は、Account編集ページのSSH Keys欄で登録できます。公開鍵は、下記のコマンドで予めクリップボードにコピーしておくと楽です。</p>
+
+<pre><code>$ cat ~/.ssh/id_rsa.pub | pbcopy
+</code></pre>
+
+<p>登録が完了したらHeroku Toolbeltをインストールします。Heroku Toolbeltは、Heroku Appsを管理するためのコマンドラインツールです。インストールが終わったら、herokuコマンドでログインできるか試してみます。</p>
+
+<ul>
+<li>Heroku Toolbelt: <a href="https://toolbelt.heroku.com/">https://toolbelt.heroku.com/</a></li>
+</ul>
+
+
+<p>コマンドは次のとおりです。</p>
+
+<pre><code>$ heroku login
+Enter your Heroku credentials.
+Email: satoshi@yamamoto.name
+Password (typing will be hidden): ********
+Authentication successful.
+</code></pre>
+
+<p>無事ログインできました。herokuコマンドからでも公開鍵の登録やアドオンの設定が可能です。詳しくはheroku &mdash;helpコマンドか、ホームページを参照してください。</p>
+
+<h3>ClearDB (MySQL)アドオンの設定</h3>
+
+<p>HerokuのRails環境では、デフォルトでPostgreSQLが指定されていますが、アドオンでClearDBというMySQLサーバーに変更することができます。アドオンを利用するには、予めクレジットカードの番号を登録しておく必要があります。下記のコマンドでアドオンを追加します。</p>
+
+<pre><code>$ heroku addons:add cleardb:ignite
+Adding cleardb on [app name]... done, v3 (free)
+Use `heroku addons:docs cleardb` to view documentation.
+</code></pre>
+
+<p>heroku configコマンドで接続情報を確認します。接続URLからユーザー名、パスワードなど接続するために必要な情報が参照できます。この値を使うことで直接ClearDBにも接続できます。</p>
+
+<pre><code>$ heroku config | grep CLEARDB_DATABASE_URL
+CLEARDB_DATABASE_URL: mysql://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true
+</code></pre>
+
+<p>Herokuの環境変数に上記の接続文字列を設定します。</p>
+
+<pre><code>$ heroku config:set DATABASE_URL='mysql2://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true'
+</code></pre>
+
+<p>続いてRailsがproduction環境でMySQLを使用するようにGemfileとdatabase.ymlと設定ファイルを書き換えます。</p>
+
+<pre><code>$ vi Gemfile
+gem 'sqlite3', :group =&gt; [:development, :test]
+group :production do
+  gem 'mysql2'
+end
+</code></pre>
+
+<p>（※database.yml修正しなくてもMySQL使えてますが念のため&hellip;)</p>
+
+<pre><code>$ vi config/database.yml
+production:
+  adapter: mysql2
+  username: [username]
+  password: [password]
+  host: [hostname]
+  database: [database]
+</code></pre>
+
+<h3>HerokuからSMTPでメールを送信する</h3>
+
+<p>herokuコマンドでSendGridのアドオンを追加します。</p>
+
+<pre><code>$ heroku addons:add sendgrid:starter
+</code></pre>
+
+<p>続いてconfig/environments/production.rbにActionMailerの設定を記述します。</p>
+
+<pre><code># Log the query plan for queries taking more than this (works
+# with SQLite, MySQL, and PostgreSQL)
+# config.active_record.auto_explain_threshold_in_seconds = 0.5
+config.action_mailer.smtp_settings = {
+  address:        'smtp.sendgrid.net',
+  port:           '587',
+  authentication: :plain,
+  user_name:      ENV['SENDGRID_USERNAME'],
+  password:       ENV['SENDGRID_PASSWORD'],
+  domain:         'herokuapp.com'
+}
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://straitwalk.hatenablog.com/entry/2013/08/11/004648">Heroku+Rails4+Devise+MySQL+Redis &ndash; 成らぬは人の為さぬなりけり</a></li>
+<li><a href="https://devcenter.heroku.com/articles/cleardb">ClearDB MySQL Database | Heroku Dev Center</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/06/building-rails-develop-environment/">Mac OS XにRails開発環境を構築する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-06T12:39:45+09:00" pubdate data-updated="true">Jan 6<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Railsのインストール</h2>
+
+<p>gemでrailsをインストールします。<a href="http://www.amazon.co.jp/Rails%E3%81%AB%E3%82%88%E3%82%8B%E3%82%A2%E3%82%B8%E3%83%A3%E3%82%A4%E3%83%ABWeb%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E9%96%8B%E7%99%BA-%E7%AC%AC4%E7%89%88-Sam-Ruby/dp/4274068668">RailsによるアジャイルWebアプリケーション開発 第4版</a>の日本語版が、Rails 3.x時点の執筆なのでインストールするバージョンもそれに合わせます。インストールが完了したら、バージョンを確認します。</p>
+
+<pre><code>$ gem install rails -v "~&gt;3.2.0" #3.2系の最新
+$ rails -v
+Rails 3.2.16
+</code></pre>
+
+<p>一度、最新の4.x系をインストールしていると正しく3.x系が表示されない場合があります。その時は次のコマンドで4.x系の不要なモジュールが残っていないか確認してみてください。</p>
+
+<pre><code>$ gem list | grep railties
+railties (4.0.2, 3.2.16)
+</code></pre>
+
+<p>削除するにはバージョンを指定してrailtiesを削除します。</p>
+
+<pre><code>$ gem uninstall railties -v "4.0.2"
+</code></pre>
+
+<p>また、Databaseに関してはローカルの開発ではSQLite3を使い、herokuのデプロイ後は、アドオンでMySQLを使います。コマンドラインからデータを参照するためにsqlite3をインストールします。</p>
+
+<pre><code>$ brew install sqlite3
+==&gt; Downloading https://downloads.sf.net/project/machomebrew/Bottles/sqlite-3.8.2.m
+######################################################################## 100.0%
+==&gt; Pouring sqlite-3.8.2.mountain_lion.bottle.tar.gz
+==&gt; Caveats
+This formula is keg-only, so it was not symlinked into /usr/local.
+
+Mac OS X already provides this software and installing another version in
+parallel can cause all kinds of trouble.
+
+OS X provides an older sqlite3.
+
+Generally there are no consequences of this for you. If you build your
+own software and it requires this formula, you'll need to add to your
+build variables:
+
+    LDFLAGS:  -L/usr/local/opt/sqlite/lib
+    CPPFLAGS: -I/usr/local/opt/sqlite/include
+
+==&gt; Summary
+🍺  /usr/local/Cellar/sqlite/3.8.2: 9 files, 2.0M
+</code></pre>
+
+<p>SQLの結果が見やすいようsqlite3のコマンドにヘッダー表示と列幅調整モードのオプションを指定します。</p>
+
+<pre><code>$ vi ~/.bashrc
+     :
+alias sqlite3='sqlite3 -header -column'
+
+$ sqlite3 
+SQLite version 3.7.12 2012-04-03 19:43:07
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite&gt; .show
+     echo: off
+  explain: off
+  headers: on
+     mode: column
+nullvalue: ""
+   output: stdout
+separator: "|"
+    stats: off
+    width:
+</code></pre>
+
+<h2>IDEを選ぶ</h2>
+
+<p>これは完全に好みですが、3.x系でrailsプロジェクトをサポートしているAptana Studio 3をインストールします。NetBeans、EclipseプラグインであるRadRails 2は、3.xのサポートがありませんでした。</p>
+
+<ul>
+<li>Apatana: <a href="http://www.aptana.com/products/studio3/download">http://www.aptana.com/products/studio3/download</a></li>
+</ul>
+
+
+<p>次は、IDEの設定とHerokuへデプロイするまでの手順を記します。</p>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://blog.supermomonga.com/articles/rails/rails-version-railties.html">Railsのバージョンがなんかおかしい時はrailtiesをチェック</a></li>
+<li><a href="http://blog.ojimac.com/2012/04/25/%E6%9C%80%E8%BF%91%E3%81%AEruby%E3%80%81rails%E3%81%AE%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%81%8B%E3%82%89%E3%80%81heroku%E3%81%B8%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%BE%E3%81%A7%E3%81%AE/">最近のRuby、Railsの環境構築から、herokuへデプロイまでのやり方を教えてもらいました</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/14/install-ruby-2-dot-0-on-mac/">Mac OS XにRuby 2.0をインストールする</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので<a href="http://blog.lampetty.net/blog_ja/index.php/archives/475">「homebrewでMacに複数バージョンのrubyをインストールする」</a>を参考に作業を進めます。</p>
+
+<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+
+<ul>
+<li>libyaml</li>
+<li>openssl</li>
+<li>readline (推奨)</li>
+</ul>
+
+
+<p>インストール可能なバージョンを確認</p>
+
+<pre><code> $ brew versions ruby
+ 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
+ 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
+ 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
+ 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
+        :
+</code></pre>
+
+<p>2.0.0-p247を指定します。</p>
+
+<pre><code>$ cd /usr/local
+$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
+</code></pre>
+
+<p>rdocのドキュメントも合わせてインストールします。</p>
+
+<pre><code>$ brew install ruby --with-doc
+==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
+Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
+==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
+==&gt; make
+==&gt; make install
+==&gt; Caveats
+NOTE: By default, gem installed binaries will be placed into:
+  /usr/local/opt/ruby/bin
+
+You may want to add this to your PATH.
+==&gt; Summary
+🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
+</code></pre>
+
+<p>環境変数を設定します。</p>
+
+<pre><code>$ vi ~/.bash_profile
+
+RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
+RI="--format ansi" # riを256カラーで表示
+PAGER="less -R" # ページャーにlessを指定
+PATH=$RUBY_HOME/bin:$PATH 
+
+export PATH PAGER RUBY_HOME RI
+~
+</code></pre>
+
+<p>インストールされたか確認</p>
+
+<pre><code>$ ruby -v
+ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
+</code></pre>
+
+<p>リファレンスを見る</p>
+
+<pre><code>$ ri GC --format ansi
+GC
+
+(from ruby core)
+------------------------------------------------------------------------------
+The GC module provides an interface to Ruby's mark and sweep garbage
+collection mechanism.
+        :
+</code></pre>
+
+<p>カラー表示されていればOKです。</p>
+
+<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
+
+<pre><code>$ gem install byebug
+Building native extensions.  This could take a while...
+Successfully installed byebug-2.3.1
+        :
+</code></pre>
+
+<p>次はRailsの開発環境を整えます。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/2/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">React初めました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">React初めました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

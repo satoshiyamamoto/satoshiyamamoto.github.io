@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Mac OS XにRuby 2.0をインストールする - 俺のMoleskin.log</title>
+  <title>重宝しているEclipse Pluginたち - 俺のMoleskin.log</title>
   <meta name="author" content="山本 聡">
 
   
-  <meta name="description" content="HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので「homebrewでMacに複数バージョンのrubyをインストールする」 &hellip;">
+  <meta name="description" content="Java屋として、仕事から普段まで切っては切れない縁のEclipse。intelliJ IDEAに乗り換えようと思った時も何度かありましたが、いまだEclipseを使っています。(intelliJ高い&hellip;) 今回は、あると開発が便利になるプラグインを4つ紹介したいと思います。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac">
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/03/04/my-favorite-eclipse-plugin">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
@@ -66,7 +66,7 @@
   
   <header>
     
-      <h1 class="entry-title">Mac OS XにRuby 2.0をインストールする</h1>
+      <h1 class="entry-title">重宝しているEclipse Pluginたち</h1>
     
     
       <p class="meta">
@@ -82,99 +82,57 @@
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-03-04T14:32:30+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので<a href="http://blog.lampetty.net/blog_ja/index.php/archives/475">「homebrewでMacに複数バージョンのrubyをインストールする」</a>を参考に作業を進めます。</p>
+<div class="entry-content"><p>Java屋として、仕事から普段まで切っては切れない縁のEclipse。intelliJ IDEAに乗り換えようと思った時も何度かありましたが、いまだEclipseを使っています。(intelliJ高い&hellip;)</p>
 
-<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+<p>今回は、あると開発が便利になるプラグインを4つ紹介したいと思います。</p>
+
+<ol>
+<li>Terminalプラグイン</li>
+<li>Glanceプラグイン</li>
+<li>Quick Junitプラグイン</li>
+<li>Eclipse Color Themeプラグイン</li>
+</ol>
+
+
+<h2><a href="https://code.google.com/p/elt/">Terminalプラグイン</a></h2>
+
+<p><img src="/images/20140305/terminal.png" alt="Terninaml" />
+　その名の通り、ターミナルエミュレータで開発元はGoogle,incです。Aptana StudioのRailsプロジェクトで存在を知ったんですが、Googleらしくシンプルで非常に使いやすく設計されています。</p>
+
+<p>　Javaだとコードを書いてMavenでテスト実行、Gitで差分を確認なんかをやろうとしても、キーボードから手を話してマウスでメニューを辿って&hellip;という煩わしさから解放されます。ダントツ一位でおすすめのプラグインです。</p>
+
+<h2><a href="https://code.google.com/p/eclipse-glance/">Glanceプラグイン</a></h2>
+
+<p><img src="/images/20140305/glance.png" alt="Glance" /></p>
+
+<p>　Eclipseの非力な検索を改善してくれるプラグインです。Eclipse標準のプラグインはモーダルダイアログで、検索結果がダイアログに隠れてしまうこともしばしば。これは、強力なインクリメンタルサーチでファイル以外にもEclipseのペインも検索対象にしてくれます。解説は、<a href="http://did2memo.net/2012/11/06/eclipse-iterative-search-plugin-glance/">情報科学屋さんを目指す人のメモ</a>が詳しいので参考にしてみてください。</p>
+
+<h2><a href="http://quick-junit.sourceforge.jp">Quick Junitプラグイン</a></h2>
+
+<p>　その名の通り、JUnitの操作を高速にするプラグインです。⌘ + 9でテスティングペア間を移動、⌘ + 0でJUnitを実行できます。</p>
+
+<h2><a href="http://eclipsecolorthemes.org">Eclipse Color Themeプラグイン</a></h2>
+
+<p><img src="/images/20140305/color.png" alt="Color" /></p>
+
+<p>　テキストエディタに好みのカラーテーマを適用するプラグインです。VimやEmacsなどで有名なカラースキームが<a href="http://eclipsecolorthemes.org">配布</a>されています。私の場合はtomasr/molokai風のOvlibionというテーマを適用しています。</p>
+
+<p>その他、Spring IDEやm2eなど外せないプラグインも数多くありますが、１つずつ上げていくと限がないので今回はここまで。</p>
+
+<h2>参考</h2>
 
 <ul>
-<li>libyaml</li>
-<li>openssl</li>
-<li>readline (推奨)</li>
+<li><a href="http://did2memo.net/2012/11/06/eclipse-iterative-search-plugin-glance/">Eclipseを改善するインクリメンタルサーチプラグイン「Glance」がオススメ！</a></li>
+<li><a href="http://www.atmarkit.co.jp/ait/articles/1008/02/news095.html">ユカイ、ツーカイ、カイハツ環境！（16）：単体テストを“神速”化するQuick JUnitとMockito &ndash; ＠IT</a></li>
 </ul>
 
-
-<p>インストール可能なバージョンを確認</p>
-
-<pre><code> $ brew versions ruby
- 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
- 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
- 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
- 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
-        :
-</code></pre>
-
-<p>2.0.0-p247を指定します。</p>
-
-<pre><code>$ cd /usr/local
-$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
-</code></pre>
-
-<p>rdocのドキュメントも合わせてインストールします。</p>
-
-<pre><code>$ brew install ruby --with-doc
-==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
-Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
-==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
-==&gt; make
-==&gt; make install
-==&gt; Caveats
-NOTE: By default, gem installed binaries will be placed into:
-  /usr/local/opt/ruby/bin
-
-You may want to add this to your PATH.
-==&gt; Summary
-🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
-</code></pre>
-
-<p>環境変数を設定します。</p>
-
-<pre><code>$ vi ~/.bash_profile
-
-RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
-RI="--format ansi" # riを256カラーで表示
-PAGER="less -R" # ページャーにlessを指定
-PATH=$RUBY_HOME/bin:$PATH 
-
-export PATH PAGER RUBY_HOME RI
-~
-</code></pre>
-
-<p>インストールされたか確認</p>
-
-<pre><code>$ ruby -v
-ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
-</code></pre>
-
-<p>リファレンスを見る</p>
-
-<pre><code>$ ri GC --format ansi
-GC
-
-(from ruby core)
-------------------------------------------------------------------------------
-The GC module provides an interface to Ruby's mark and sweep garbage
-collection mechanism.
-        :
-</code></pre>
-
-<p>カラー表示されていればOKです。</p>
-
-<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
-
-<pre><code>$ gem install byebug
-Building native extensions.  This could take a while...
-Successfully installed byebug-2.3.1
-        :
-</code></pre>
-
-<p>次はRailsの開発環境を整えます。</p>
 </div>
 
 
@@ -197,7 +155,7 @@ Successfully installed byebug-2.3.1
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-03-04T14:32:30+09:00" pubdate data-updated="true">Mar 4<span>th</span>, 2014</time>
       
 
 
@@ -205,7 +163,7 @@ Successfully installed byebug-2.3.1
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/03/04/my-favorite-eclipse-plugin/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/03/04/my-favorite-eclipse-plugin/" >Tweet</a>
   
   
   
@@ -214,8 +172,10 @@ Successfully installed byebug-2.3.1
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2014/03/01/java-ci-3/" title="Previous Post: Java CI環境(Jenkins+α)構築のおさらい その3 Jenkins構築編">&laquo; Java CI環境(Jenkins+α)構築のおさらい その3 Jenkins構築編</a>
       
-        <a class="basic-alignment right" href="/blog/2014/01/06/building-rails-develop-environment/" title="Next Post: Mac OS XにRails開発環境を構築する">Mac OS XにRails開発環境を構築する &raquo;</a>
+      
+        <a class="basic-alignment right" href="/blog/2014/03/05/deamon-on-cygwin/" title="Next Post: Unixのサーバ群をCygwin上にインストールする">Unixのサーバ群をCygwin上にインストールする &raquo;</a>
       
     </p>
   </footer>

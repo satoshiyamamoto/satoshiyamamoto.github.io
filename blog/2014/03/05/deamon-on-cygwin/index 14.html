@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Unixのサーバ群をCygwin上にインストールする - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="UnixのデーモンプログラムをCygwinで動かしてみます。インストールに関しては、HomebrewやYumで一発OKなほど洗練されているとは言えません。そこがCygwinの楽しみの一つでもあるのですが、たまに躓く自分のために、覚書として残しておきます。 SSH 6.5
+Apache 2.2 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/03/05/deamon-on-cygwin">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Unixのサーバ群をCygwin上にインストールする</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-05T15:42:49+09:00" pubdate data-updated="true">Mar 5<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>UnixのデーモンプログラムをCygwinで動かしてみます。インストールに関しては、HomebrewやYumで一発OKなほど洗練されているとは言えません。そこがCygwinの楽しみの一つでもあるのですが、たまに躓く自分のために、覚書として残しておきます。</p>
+
+<ul>
+<li>SSH 6.5</li>
+<li>Apache 2.2</li>
+<li>Mysql 5.5</li>
+</ul>
+
+
+<h2>Windowsサービスの登録方法</h2>
+
+<p>Windowsのサービスに登録するには、cygrunsrvコマンドを使います。このコマンドは、Linuxのinit.dスクリプトとchkconfigの役目を果たします。コマンドの書式は次のとおりです。</p>
+
+<pre><code>$ cygrunsrv --install &lt;app_name&gt; --path &lt;app_path&gt; [OPTIONS...]
+</code></pre>
+
+<h2>Cygrunsrv</h2>
+
+<p>Unixのデーモンをバックグラウンドで動かすためにCygserverの設定を行います。Cygserverは、Windowsで提供されていなセマフォやメッセージキューなどのプロセス間通信を支援します。まず、Cygwinのインストールが完了したら、Windowsのシステム環境変数に CYGWIN=server する必要があります。続いて、次のコマンドでCygserverの設定を行います。</p>
+
+<pre><code>$ cygserver-config
+Generating /etc/cygserver.conf file
+
+
+Warning: The following function requires administrator privileges!
+Do you want to install cygserver as service?
+(Say "no" if it's already installed as service) (yes/no) yes
+
+The service has been installed under LocalSystem account.
+To start it, call `net start cygserver' or `cygrunsrv -S cygserver'.
+
+Further configuration options are available by editing the configuration
+file /etc/cygserver.conf. Please read the inline information in that
+file carefully. The best option for the start is to just leave it alone.
+    :
+Basic Cygserver configuration finished. Have fun!
+</code></pre>
+
+<p>Windowsのサービス一覧に CYGWIN cygserver が追加されていることを確認します。</p>
+
+<h2>SSH</h2>
+
+<p>Opensshでは、3.3以降からデーモンプロセスを、特権を持たないsshdというユーザーに閉じ込めることで、セキュリティーを担保するようになりました。Cygwinに関しても、しかりでsshdというOSのローカルユーザを別途作成する必要があります。この作業は、対話式のssh-host-configスクリプトで行います。なお特権を分離するため下記の問に yes と応えます。</p>
+
+<pre><code>$ ssh-host-config
+    : 
+*** Query: Should privilege separation be used? (yes/no) yes
+</code></pre>
+
+<p>Windowsのサービスに登録するには、下記の質問にyesと応えます。サービス名はデフォルトのままにします。</p>
+
+<pre><code>*** Query: Do you want to install sshd as a service?
+*** Query: (Say "no" if it is already installed as a service) (yes/no) yes
+*** Query: Enter the value of CYGWIN for the daemon: []
+    :
+</code></pre>
+
+<p>ここで、WIndowsのサービスを起動するcyg_serverユーザを作成するか尋ねられますが、WindowsのSYSTEMローカルアカウントで代用できます。なので、今回はcyg_serverユーザを作らないままインストールを進めます。</p>
+
+<pre><code>*** Info: This script plans to use 'cyg_server'.
+*** Info: 'cyg_server' will only be used by registered services.
+*** Query: Do you want to use a different name? (yes/no) no
+
+*** Query: Create new privileged user account 'cyg_server'? (yes/no) no
+*** ERROR: There was a serious problem creating a privileged user.
+*** Query: Do you want to proceed anyway? (yes/no) yes
+*** Warning: Expected privileged user 'cygwin' does not exist.
+*** Warning: Defaulting to 'SYSTEM'
+
+*** Info: The sshd service has been installed under the LocalSystem 
+    :
+</code></pre>
+
+<p>スクリプトが正常に終了したら、メッセージに従って下記のコマンド、またはWindowsサービスから起動しSSHログインできるか確認します。</p>
+
+<pre><code>$ cygrunsrv --start sshd 
+</code></pre>
+
+<h2>Apache2</h2>
+
+<p>Apacheのインストールが完了したら、httpd.confの設定を行います。インストール直後はServerNameがコメントアウトされているので、正しいサーバー名を設定してあげます。</p>
+
+<pre><code>$ hostname --fqdn
+win7.local   &lt;--- サーバー名
+
+$ /usr/sbin/apachectl2 configtest
+Syntax OK
+</code></pre>
+
+<p>設定が完了したら、起動するか確認します。</p>
+
+<pre><code>$ /usr/sbin/apachectl2 start
+    or
+$ /usr/sbin/httpd2 -k start
+</code></pre>
+
+<p>Apacheの起動にはCygserverの設定とCYGWIN環境変数の設定が必要です。1464 Bad system call などとエラーが出た場合は、これらが正しく設定されているか確認してみてください。</p>
+
+<p>cygrunsrvでサービスに登録します。</p>
+
+<pre><code>$ cygrunsrv --install httpd --path /usr/sbin/httpd --args '-k' --disp 'CYGWIN httpd'
+</code></pre>
+
+<p>Windowsのサービス一覧から起動できれば成功です。</p>
+
+<h2>MySQL</h2>
+
+<p>MySQLをローカルで起動するにはサーバーとクライアントの両方が必要です。クライアントのインストールが抜けていると、起動時に my_print_defaults が見つからずエラーになります。setup.exe のインストールが完了したら、DBの初期化を行います。</p>
+
+<pre><code>$ /usr/bin/mysql_installdb
+</code></pre>
+
+<p>デフォルトでは /var/lib/mysql にデータベースが作成されます。変更したい場合は &mdash;datadir=<path> で指定します。データベースの初期化が完了したらメッセージにしたがって mysql.server スクリプトをコピーしておきます。</p>
+
+<pre><code>$ cp /usr/share/mysql/mysql.server /usr/bin/
+$ chmod +x /usr/bin/mysql.server
+</code></pre>
+
+<p>次のコマンドで起動と、mysqlクライアントから接続できるか確認します。</p>
+
+<pre><code>$ mysql.server start
+Starting MySQL...... SUCCESS!
+$ mysql -uroot -p
+</code></pre>
+
+<p>最後にWindowsのサービスに登録します</p>
+
+<pre><code>$ cygrunsrv --install mysqld --path /usr/bin/mysql_safe --args '--datadir=/var/lib/mysql --pid-file=/var/lib/mysql/&lt;srv_name&gt;.pid
+</code></pre>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="https://www.citi.umich.edu/u/provos/ssh/privsep-j.html">特権分離 (Privilege Separated) OpenSSH</a></li>
+<li><a href="http://www.sixnine.net/cygwin/translation/cygwin-ug-net/using-cygserver.html">3.6. Cygserver</a></li>
+<li><a href="http://komoriyuichi.web.fc2.com/cygwin/apache2.html">Cygwin で Apache2 をサービスとして起動</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-05T15:42:49+09:00" pubdate data-updated="true">Mar 5<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/03/05/deamon-on-cygwin/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/03/05/deamon-on-cygwin/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/04/my-favorite-eclipse-plugin/" title="Previous Post: 重宝しているEclipse Pluginたち">&laquo; 重宝しているEclipse Pluginたち</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/06/hello-gist/" title="Next Post: Hello Gist!!">Hello Gist!! &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">React初めました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">React初めました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,413 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Java8の新機能に触れる(4) Date and Time - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="　Java8で新しくなった、Date and Time API (JSP-310）について調べました。新しいDate and Timeパッケージは、次の考え方を中心に設計されています。 不変な値を持つクラス
+ドメイン駆動設計
+暦 (Chronology) の区別 　既存のクラスには、スレッド・ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/07/28/java8-time">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Java8の新機能に触れる(4) Date and Time</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-28T14:55:00+09:00" pubdate data-updated="true">Jul 28<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>　Java8で新しくなった、Date and Time API (JSP-310）について調べました。新しいDate and Timeパッケージは、次の考え方を中心に設計されています。</p>
+
+<ul>
+<li>不変な値を持つクラス</li>
+<li>ドメイン駆動設計</li>
+<li>暦 (Chronology) の区別</li>
+</ul>
+
+
+<p>　既存のクラスには、スレッド・セーフではないSimpleDateFormatクラスや、直感的でないAPIなどの使い勝手に問題がありました。これを受け、Joda-Timeライブラリの作者がスペックリードとなり開発を進められたものです。</p>
+
+<h2>動作環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>JDK 1.8.0 u11</li>
+</ul>
+
+
+<h2>オブジェクトの生成</h2>
+
+<p>オブジェクトは、now または of のファクトリメソッドを使って生成します。別の型から変換するには from メソッドを使います。また、日付文字列を解析するには parse メソッドを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 現在の日付と時刻</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">timePoint</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// 値から作成</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">2014</span><span class="o">,</span> <span class="n">Month</span><span class="o">.</span><span class="na">JULY</span><span class="o">,</span> <span class="mi">28</span><span class="o">);</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">2014</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">28</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列から作成</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;2014-07-28&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 今日の帰宅時に利用した電車</span>
+</span><span class='line'><span class="n">LocalTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">17</span><span class="o">,</span> <span class="mi">18</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列から作成</span>
+</span><span class='line'><span class="n">LocalTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;10:15:30&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>日付のフォーマット</h2>
+
+<p>日付のフォーマットは、DateTimeクラスの format メソッドを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// ISO形式は列挙型を</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">DateTimeFormatter</span><span class="o">.</span><span class="na">ISO_LOCAL_DATE_TIME</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列で指定する場合</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">DateTimeFormatter</span><span class="o">.</span><span class="na">ofPattern</span><span class="o">(</span><span class="s">&quot;yyyy/MM/dd hh:mm:ss&quot;</span><span class="o">,</span> <span class="n">Locale</span><span class="o">.</span><span class="na">JAPAN</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>値の取得と変更</h2>
+
+<p>値の取得は、標準的なgetterを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// =&gt; 2014-07-28</span>
+</span><span class='line'><span class="n">LocalDate</span> <span class="n">theDate</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">toLocalDate</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; 07</span>
+</span><span class='line'><span class="n">Month</span> <span class="n">month</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">getMonth</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; 31</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">day</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">getDayOfMonth</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; xxx</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">getSecond</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>timeパッケージのクラスは不変クラスのため、破壊的メソッドは提供されていません。値を変更するには、with または plus メソッドを使って新しいオブジェクトを取得します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 月の10日を指定し、さらに2010年を指定</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">thePast</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">withDayOfMonth</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="na">withYear</span><span class="o">(</span><span class="mi">2010</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 値とフィールドのペア</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">yetAnother</span> <span class="o">=</span> <span class="n">thePast</span><span class="o">.</span><span class="na">plusWeeks</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="na">plus</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">ChronoUnit</span><span class="o">.</span><span class="na">WEEKS</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>また、with メソッドは TemporalAdjusters クラスで実装された日付操作のコードブロックを受け取ることも出来ます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">LocalDateTime</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">TemporalAdjusters</span><span class="o">.</span><span class="na">lastDayOfMonth</span><span class="o">());</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">bar</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">TemporalAdjusters</span><span class="o">.</span><span class="na">previousOrSame</span><span class="o">(</span><span class="n">DayOfWeek</span><span class="o">.</span><span class="na">WEDNESDAY</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Unixタイムスタンプ</h2>
+
+<p>timeパッケージでは、Unixのエポックタイムをラップした Instant クラスを使って表現します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 現在時刻</span>
+</span><span class='line'><span class="n">Instant</span><span class="o">.</span><span class="na">now</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// ミリ秒から</span>
+</span><span class='line'><span class="n">Instant</span><span class="o">.</span><span class="na">ofEpochMilli</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+</span><span class='line'><span class="c1">// DateTimeクラスから</span>
+</span><span class='line'><span class="n">ZonedDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span><span class='line'><span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">toInstant</span><span class="o">(</span><span class="n">zoneOffset</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 旧java.utilクラスから</span>
+</span><span class='line'><span class="n">Calendar</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span><span class='line'><span class="k">new</span> <span class="nf">Date</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>タイムゾーンの扱いについて</h2>
+
+<p>タイムゾーンを考慮した時差の補正には、ZoneId、ZoneOffsetクラスを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// ゾーンの正式名を指定</span>
+</span><span class='line'><span class="n">ZoneId</span> <span class="n">zoneId</span> <span class="o">=</span> <span class="n">ZoneId</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;Asia/Tokyo&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 標準時刻との時差</span>
+</span><span class='line'><span class="n">ZoneOffset</span> <span class="n">zoneOffset</span> <span class="o">=</span> <span class="n">ZoneOffset</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;+09:00&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// タイムゾーンを指定してインスタンスを生成</span>
+</span><span class='line'><span class="n">ZonedDateTime</span> <span class="n">zoned</span> <span class="o">=</span> <span class="n">ZonedDateTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">timePoint</span><span class="o">,</span> <span class="n">zoneId</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>まとめ</h2>
+
+<p>纏め中&hellip;</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.oracle.com/technetwork/jp/articles/java/jf14-date-time-2125367-ja.html">Java SE 8 Date and Time</a></li>
+<li><a href="http://d.hatena.ne.jp/nowokay/20130917">Java8日付時刻APIの使いづらさと凄さ &ndash; きしだのはてな</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-28T14:55:00+09:00" pubdate data-updated="true">Jul 28<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/07/28/java8-time/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/07/28/java8-time/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/02/java8-stream2/" title="Previous Post: Java8の新機能に触れる(3) Stream API おまけ編">&laquo; Java8の新機能に触れる(3) Stream API おまけ編</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/12/01/provisioning-01/" title="Next Post: プロビジョニング事始め (1) ruby環境構築編">プロビジョニング事始め (1) ruby環境構築編 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

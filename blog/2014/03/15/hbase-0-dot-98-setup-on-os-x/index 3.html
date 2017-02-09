@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>HadoopとHBaseをOS Xにインストールする - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="　Linux上でHDFSの構築ができたので、今回はHomebrewを使ってOS XにHadoopとHBaseを構築します。基本的な作業は前回、前回と同じなので要点を絞って記事に残したいと思います。インストールする環境は次のとおりです。 環境 Mac OS X 10.9.2 (Marvericks &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/03/15/hbase-0-dot-98-setup-on-os-x">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">HadoopとHBaseをOS Xにインストールする</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-15T21:18:28+09:00" pubdate data-updated="true">Mar 15<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>　Linux上でHDFSの構築ができたので、今回はHomebrewを使ってOS XにHadoopとHBaseを構築します。基本的な作業は前回、前回と同じなので要点を絞って記事に残したいと思います。インストールする環境は次のとおりです。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>Mac OS X 10.9.2 (Marvericks)</li>
+<li>JDK 1.8.0 beta 128</li>
+<li>Hadoop 2.2.0</li>
+<li>HBase 0.98</li>
+</ul>
+
+
+<h2>Homebrewでのインストール方法</h2>
+
+<p>　HomebrewでHadoopとHBaseをインストールします。</p>
+
+<h3>Hadoopのインストール</h3>
+
+<pre><code>$ brew info hadoop
+hadoop: stable 2.2.0
+    :
+$ brew install hadoop
+</code></pre>
+
+<h3>HBaseのインストール</h3>
+
+<p>HBaseに関しては、0.98系をインストールできるようにFormulaファイルを修正します。brew editコマンドで、HBaseのダウンロードURLとファイルのハッシュ値を変更します。</p>
+
+<pre><code>$ brew edit hbase
+url 'http://ftp.jaist.ac.jp/pub/apache/hbase/hbase-0.98.0/hbase-0.98.0-hadoop2-bin.tar.gz'
+sha1 '95cbaf1703a3f4719f67ff0e2d3247155b49fccc'
+</code></pre>
+
+<p>brew installでインストールします。</p>
+
+<pre><code>$ brew info hbase
+hbase: stable 0.98.0, devel 0.96.1.1
+     :
+
+$ brew install hbase
+</code></pre>
+
+<h2>HDFSの構築と初期化</h2>
+
+<p>あらかじめ、パスワードなしでSSHログインできるように、秘密鍵の作成と公開鍵の登録を済ませておきます。</p>
+
+<h3>NameNode、DataNodeディレクトリの作成</h3>
+
+<p>それぞれのディレクトリは、Homebrew管理下の/usr/local配下に構築します。</p>
+
+<pre><code>$ mkdir -p /usr/local/var/dfs/nn
+$ mkdir -p /usr/local/var/dfs/dn
+</code></pre>
+
+<h3>Hadoop設定ファイルの編集</h3>
+
+<p>基本的には、Linux編とさほど変わりはありません。前回、前々回の記事を参考に次の設定ファイルを編集します。</p>
+
+<ul>
+<li>hadoop-env.sh</li>
+<li>core-site.xml</li>
+<li>hdfs-site.xml</li>
+<li>yarn-site.xml</li>
+<li>mapred-site.xml</li>
+</ul>
+
+
+<p>HADOOP_HOMEは/usr/local/opt/hadoop/libexecを指定します。hdfs-site.xmlの各ノードは、前述の/usr/local/var/dfsから始まるパスを指定します。</p>
+
+<p>編集が無事終わったら、hdfsコマンドでNameNodeを初期化します。</p>
+
+<pre><code>$ hdfs namenode -format
+</code></pre>
+
+<h2>HBaseの設定</h2>
+
+<p>/usr/local/opt/hbase/conf に移動し、hbase-site.xmlを編集します。</p>
+
+<pre><code>$ vi conf/hbase-site.xml
+    :
+&lt;property&gt;
+    &lt;name&gt;hbase.rootdir&lt;/name&gt;
+    &lt;value&gt;hdfs://localhost:9000/hbase&lt;/value&gt;
+&lt;/property&gt;
+&lt;property&gt;
+    &lt;name&gt;dfs.replication&lt;/name&gt;
+    &lt;value&gt;1&lt;/value&gt;
+&lt;/property&gt;
+</code></pre>
+
+<h2>動作確認</h2>
+
+<p>HDFSを起動させます。</p>
+
+<pre><code>$ start-dfs.sh &amp;&amp; start-yarn.sh
+</code></pre>
+
+<p>それぞれ、Webインターフェールで正常に起動できているか確認を行います。</p>
+
+<ul>
+<li>Cluster Metrics: <a href="http://localhost:8088">http://localhost:8088</a></li>
+<li>Namenode: <a href="http://localhost:50070">http://localhost:50070</a></li>
+<li>Secondary NameNode: <a href="http://localhost:50090">http://localhost:50090</a></li>
+</ul>
+
+
+<p>続いて、HBaseを起動しブラウザで動作確認を行います。</p>
+
+<pre><code>$ start-hbase.sh
+</code></pre>
+
+<ul>
+<li>HBase: <a href="http://localhost:60010">http://localhost:60010</a></li>
+</ul>
+
+
+<h2>HBaseでエラーができる時の対処方法</h2>
+
+<p>ZooKeeperがHBaseの管理下で起動されていない場合、次のコマンドで起動します。</p>
+
+<pre><code>$ hbase-daemons.sh start zookeeper
+$ netstat -an | grep 2181
+    :                     # 確認
+</code></pre>
+
+<p>HDFSのノードやZooKeeperのメタ情報が参照できなくなった場合には、一度それぞれのノードを削除することエラーが解消される場合があります。</p>
+
+<pre><code>$ hdfs dfs -rm -rf /hbase
+$ zkCli
+[zk: localhost:2181(CONNECTED) 0] rmr /hbase
+</code></pre>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://qiita.com/ma2k8/items/194311828775dedaaeba">MacOSX 10.9にHbaseインストール &ndash; Qiita</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-15T21:18:28+09:00" pubdate data-updated="true">Mar 15<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/03/15/hbase-0-dot-98-setup-on-os-x/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/03/15/hbase-0-dot-98-setup-on-os-x/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/15/hbase-0-dot-98-setup-on-linux/" title="Previous Post: HBase 0.98をSingle-Node ClusterのHDFSに構築する(Linux編)">&laquo; HBase 0.98をSingle-Node ClusterのHDFSに構築する(Linux編)</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/18/no-xml-servlet/" title="Next Post: Servlet 3.0でNoXMLなContext設定">Servlet 3.0でNoXMLなContext設定 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

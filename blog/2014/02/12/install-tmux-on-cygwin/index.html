@@ -5,11 +5,14 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Mac OS XにRuby 2.0をインストールする - 俺のMoleskin.log</title>
+  <title>Cygwin 64bit版にTmuxをインストールする - 俺のMoleskin.log</title>
   <meta name="author" content="山本 聡">
 
   
-  <meta name="description" content="HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので「homebrewでMacに複数バージョンのrubyをインストールする」 &hellip;">
+  <meta name="description" content="ついにCygwinでlibeventがビルドできるようになりました。そこで、長年の悲願だったCyginwでTmuxを動かしてみたいと思いますす。 バージョン情報 Tmux: 1.9
+libevent: 2.0.21-stable
+Cygwin x86_64: 1.7.28
+Windows 7 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac">
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/02/12/install-tmux-on-cygwin">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
@@ -66,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">Mac OS XにRuby 2.0をインストールする</h1>
+      <h1 class="entry-title">Cygwin 64bit版にTmuxをインストールする</h1>
     
     
       <p class="meta">
@@ -82,99 +85,111 @@
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-02-12T15:58:25+09:00" pubdate data-updated="true">Feb 12<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので<a href="http://blog.lampetty.net/blog_ja/index.php/archives/475">「homebrewでMacに複数バージョンのrubyをインストールする」</a>を参考に作業を進めます。</p>
+<div class="entry-content"><p>ついにCygwinでlibeventがビルドできるようになりました。そこで、長年の悲願だったCyginwでTmuxを動かしてみたいと思いますす。</p>
 
-<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+<h2>バージョン情報</h2>
 
 <ul>
-<li>libyaml</li>
-<li>openssl</li>
-<li>readline (推奨)</li>
+<li>Tmux: 1.9</li>
+<li>libevent: 2.0.21-stable</li>
+<li>Cygwin x86_64: 1.7.28</li>
+<li>Windows 7 64bit: SP1</li>
 </ul>
 
 
-<p>インストール可能なバージョンを確認</p>
+<p><img src="/images/cygwin-tmux.png" alt="Capture" /></p>
 
-<pre><code> $ brew versions ruby
- 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
- 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
- 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
- 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
-        :
+<h2>インストールにあたって</h2>
+
+<p>Cygwin 64bit対応でパッケージリポジトリの階層が変わったため、<a href="https://github.com/rcmdnk/apt-cyg">apt-cyg</a>がそのままでは正しく機能しなくなってます。なので、今回は従来のsetup.exeで依存パッケージをインストールを行います。</p>
+
+<p>また、libeventのインストール先は、/usrとします。（/usr/localでは、tmuxがlibeventを見つけられずエラーになりました。）</p>
+
+<h2>依存ライブラリの一覧</h2>
+
+<p>Cygwinのsetup.exeからlibevent、Tmuxのビルドに必要なライブラリをインストールします。依存ライブラリは次の通りです。</p>
+
+<ul>
+<li>autoconf</li>
+<li>gcc-core</li>
+<li>git</li>
+<li>make</li>
+<li>ncurses</li>
+<li>libncurses-devel</li>
+<li>libtool</li>
+<li>pkg-config</li>
+<li>wget</li>
+</ul>
+
+
+<h2>libeventのビルドとインストール</h2>
+
+<p>Githubから安定版のソースをダウンロードしてきます。</p>
+
+<pre><code>$ cd /usr/local/src
+$ wget https://github.com/libevent/libevent/archive/release-2.0.21-stable.tar.gz
 </code></pre>
 
-<p>2.0.0-p247を指定します。</p>
+<p>autogen.shからconfigureを生成します。</p>
 
-<pre><code>$ cd /usr/local
-$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
+<pre><code>$ ./autogen.sh
 </code></pre>
 
-<p>rdocのドキュメントも合わせてインストールします。</p>
+<p>そうすると、Makefile.amでテストが失敗するので、以下の行をコメントアウトします。</p>
 
-<pre><code>$ brew install ruby --with-doc
-==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
-Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
-==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
-==&gt; make
-==&gt; make install
-==&gt; Caveats
-NOTE: By default, gem installed binaries will be placed into:
-  /usr/local/opt/ruby/bin
-
-You may want to add this to your PATH.
-==&gt; Summary
-🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
+<pre><code>$ vi test/Makefile.am
+    :
+22 #TESTS = $(top_srcdir)/test/test.sh
 </code></pre>
 
-<p>環境変数を設定します。</p>
+<p>再度autogen.shを実行すると正常終了します。</p>
 
-<pre><code>$ vi ~/.bash_profile
-
-RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
-RI="--format ansi" # riを256カラーで表示
-PAGER="less -R" # ページャーにlessを指定
-PATH=$RUBY_HOME/bin:$PATH 
-
-export PATH PAGER RUBY_HOME RI
-~
+<pre><code>$ ./autogen.sh
 </code></pre>
 
-<p>インストールされたか確認</p>
+<p>prefixオプションでインストール先を指定し、ビルド＆インストールします。</p>
 
-<pre><code>$ ruby -v
-ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
+<pre><code>$ ./configure --prefix=/usr
+$ make &amp;&amp; make install
 </code></pre>
 
-<p>リファレンスを見る</p>
+<h2>Tmuxのインストール</h2>
 
-<pre><code>$ ri GC --format ansi
-GC
+<p>SourceforgeからGitでソースコードを取得します。</p>
 
-(from ruby core)
-------------------------------------------------------------------------------
-The GC module provides an interface to Ruby's mark and sweep garbage
-collection mechanism.
-        :
+<pre><code>$ git clone http://git.code.sf.net/p/tmux/tmux-code
 </code></pre>
 
-<p>カラー表示されていればOKです。</p>
+<p>autogen.shでconfigureを生成しmake &amp;&amp; installします。</p>
 
-<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
-
-<pre><code>$ gem install byebug
-Building native extensions.  This could take a while...
-Successfully installed byebug-2.3.1
-        :
+<pre><code>$ ./autogen.sh
+$ ./configure --prefix=/usr
+$ make &amp;&amp; make install
 </code></pre>
 
-<p>次はRailsの開発環境を整えます。</p>
+<p>インストールされているか確認します。</p>
+
+<pre><code>$ which tmux
+/usr/bin/tmux
+
+$ tmux -V
+tmux 1.9
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://numa08.hateblo.jp/entry/2013/07/27/094528">windowsだってtmuxを使いたい &ndash; @numa08　猫耳帽子の女の子</a></li>
+<li><a href="http://atdxfe.hatenablog.com/entry/2013/11/27/031058">tmuxがCygwin上で動作するようになったのでインストール手順をまとめてみた &ndash; atdxfe&rsquo;s Blog</a></li>
+</ul>
+
 </div>
 
 
@@ -197,7 +212,7 @@ Successfully installed byebug-2.3.1
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-02-12T15:58:25+09:00" pubdate data-updated="true">Feb 12<span>th</span>, 2014</time>
       
 
 
@@ -205,7 +220,7 @@ Successfully installed byebug-2.3.1
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/02/12/install-tmux-on-cygwin/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/02/12/install-tmux-on-cygwin/" >Tweet</a>
   
   
   
@@ -214,8 +229,10 @@ Successfully installed byebug-2.3.1
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2014/02/11/raile-migrate-with-mysql/" title="Previous Post: HerokuのClearDBでdb:migrateを実行する">&laquo; HerokuのClearDBでdb:migrateを実行する</a>
       
-        <a class="basic-alignment right" href="/blog/2014/01/06/building-rails-develop-environment/" title="Next Post: Mac OS XにRails開発環境を構築する">Mac OS XにRails開発環境を構築する &raquo;</a>
+      
+        <a class="basic-alignment right" href="/blog/2014/02/13/cygwin-with-clipboard/" title="Next Post: Cygwinでクリップボードと仲良くなる">Cygwinでクリップボードと仲良くなる &raquo;</a>
       
     </p>
   </footer>

@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Mac OS XにRuby 2.0をインストールする - 俺のMoleskin.log</title>
+  <title>Cygwinでクリップボードと仲良くなる - 俺のMoleskin.log</title>
   <meta name="author" content="山本 聡">
 
   
-  <meta name="description" content="HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので「homebrewでMacに複数バージョンのrubyをインストールする」 &hellip;">
+  <meta name="description" content="getclip/putclipのインストール Cygwinのコンソールからクリップボードにアクセスするgetclipとputclipをインストールします。これらはcygutils-extraパッケージに含まれています。 文字化け対策 putclip/getclipは、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac">
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/02/13/cygwin-with-clipboard">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
@@ -66,7 +66,7 @@
   
   <header>
     
-      <h1 class="entry-title">Mac OS XにRuby 2.0をインストールする</h1>
+      <h1 class="entry-title">Cygwinでクリップボードと仲良くなる</h1>
     
     
       <p class="meta">
@@ -82,99 +82,59 @@
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-02-13T19:49:14+09:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。一般的に端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMを利用するケースが多いのですが、今回はRailsを動作させることが目的なので<a href="http://blog.lampetty.net/blog_ja/index.php/archives/475">「homebrewでMacに複数バージョンのrubyをインストールする」</a>を参考に作業を進めます。</p>
+<div class="entry-content"><h2>getclip/putclipのインストール</h2>
 
-<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+<p>Cygwinのコンソールからクリップボードにアクセスするgetclipとputclipをインストールします。これらはcygutils-extraパッケージに含まれています。</p>
+
+<h2>文字化け対策</h2>
+
+<p>putclip/getclipは、デフォルトのままでは以下のとおり2バイト文字が文字化けしてしまいます。Windowsに戻って他のアプリケーションに貼付けすると残念な結果に&hellip;</p>
+
+<pre><code>$ echo $LANG
+ja_JP.UTF-8@cjknarrow
+
+$ date | putclip
+2014蟷ｴ 2譛・13譌･ 譛ｨ譖懈律 21:56:25 JST # 結果
+</code></pre>
+
+<p>これはnkfを使って文字コードを変換することで解消できます。sourceforgeからnkfのソースを取得しmakeインストールします。</p>
+
+<pre><code>$ tar zxvf nkf-2.1.3.tar.gz
+$ cd nkf-2.1.3
+$ make &amp;&amp; make install
+</code></pre>
+
+<p>インストールが終わったらnkfにパスを通し文字コードを変換してみます。</p>
+
+<pre><code>$ date | nkf -s | putclip
+2014年 2月 13日 木曜日 22:14:36 JST  # UTF-8 -&gt; Shift_JIS
+
+$ getclip | nkf -w
+2014年 2月 13日 木曜日 22:14:36 JST  # Shift_JIS -&gt; UTF-8
+</code></pre>
+
+<p>デフォルトでこの挙動になるようaliasを設定しておくと便利です。</p>
+
+<pre><code>vi .bashrc
+    :
+alias getclip='getclip | nkf -w'
+alias putclip='nkf -s | putclip'
+</code></pre>
+
+<h3>参考</h3>
 
 <ul>
-<li>libyaml</li>
-<li>openssl</li>
-<li>readline (推奨)</li>
+<li><a href="http://d.hatena.ne.jp/edvakf/20101017/1287285851">cygwin の putclip/getclip の文字化け対策 &ndash; by edvakf in hatena</a></li>
+<li><a href="http://futurismo.biz/archives/1364">Cygwin使いならば絶対に身につけておきたいコマンド5選+apt-cyg | Futurismo</a></li>
 </ul>
 
-
-<p>インストール可能なバージョンを確認</p>
-
-<pre><code> $ brew versions ruby
- 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
- 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
- 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
- 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
-        :
-</code></pre>
-
-<p>2.0.0-p247を指定します。</p>
-
-<pre><code>$ cd /usr/local
-$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
-</code></pre>
-
-<p>rdocのドキュメントも合わせてインストールします。</p>
-
-<pre><code>$ brew install ruby --with-doc
-==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
-Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
-==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
-==&gt; make
-==&gt; make install
-==&gt; Caveats
-NOTE: By default, gem installed binaries will be placed into:
-  /usr/local/opt/ruby/bin
-
-You may want to add this to your PATH.
-==&gt; Summary
-🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
-</code></pre>
-
-<p>環境変数を設定します。</p>
-
-<pre><code>$ vi ~/.bash_profile
-
-RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
-RI="--format ansi" # riを256カラーで表示
-PAGER="less -R" # ページャーにlessを指定
-PATH=$RUBY_HOME/bin:$PATH 
-
-export PATH PAGER RUBY_HOME RI
-~
-</code></pre>
-
-<p>インストールされたか確認</p>
-
-<pre><code>$ ruby -v
-ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
-</code></pre>
-
-<p>リファレンスを見る</p>
-
-<pre><code>$ ri GC --format ansi
-GC
-
-(from ruby core)
-------------------------------------------------------------------------------
-The GC module provides an interface to Ruby's mark and sweep garbage
-collection mechanism.
-        :
-</code></pre>
-
-<p>カラー表示されていればOKです。</p>
-
-<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
-
-<pre><code>$ gem install byebug
-Building native extensions.  This could take a while...
-Successfully installed byebug-2.3.1
-        :
-</code></pre>
-
-<p>次はRailsの開発環境を整えます。</p>
 </div>
 
 
@@ -197,7 +157,7 @@ Successfully installed byebug-2.3.1
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-02-13T19:49:14+09:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
       
 
 
@@ -205,7 +165,7 @@ Successfully installed byebug-2.3.1
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2013/11/14/install-ruby-2-dot-0-on-mac/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/02/13/cygwin-with-clipboard/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/02/13/cygwin-with-clipboard/" >Tweet</a>
   
   
   
@@ -214,8 +174,10 @@ Successfully installed byebug-2.3.1
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2014/02/12/install-tmux-on-cygwin/" title="Previous Post: Cygwin 64bit版にTmuxをインストールする">&laquo; Cygwin 64bit版にTmuxをインストールする</a>
       
-        <a class="basic-alignment right" href="/blog/2014/01/06/building-rails-develop-environment/" title="Next Post: Mac OS XにRails開発環境を構築する">Mac OS XにRails開発環境を構築する &raquo;</a>
+      
+        <a class="basic-alignment right" href="/blog/2014/02/21/java-ci-1/" title="Next Post: Java CI環境(Jenkins+α)構築のおさらい その1 SVN構築編">Java CI環境(Jenkins+α)構築のおさらい その1 SVN構築編 &raquo;</a>
       
     </p>
   </footer>
@@ -235,11 +197,11 @@ Successfully installed byebug-2.3.1
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+        <a href="/blog/2017/01/24/react-advance/">React初めました (応用編)</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+        <a href="/blog/2017/01/23/react-basic/">React初めました (基礎編)</a>
       </li>
     
       <li class="post">

@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>プロビジョニング事始め (1) Ruby環境構築編 - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="しばらく仕事が忙しかったせいかブログの更新が滞ってました。なんと、実に5ヶ月ぶりの投稿です。 その期間サボっていた訳ではなく、仕事の開発スタイルがJIRAとGithubに移行したり、ミドルウェアのHBase、ZooKeeper、FlumeNGなんかを復習したり。 一方、プライベートではChef ( &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/12/01/provisioning-01">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">プロビジョニング事始め (1) Ruby環境構築編</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-01T14:49:00+09:00" pubdate data-updated="true">Dec 1<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>しばらく仕事が忙しかったせいかブログの更新が滞ってました。なんと、実に5ヶ月ぶりの投稿です。</p>
+
+<p>その期間サボっていた訳ではなく、仕事の開発スタイルがJIRAとGithubに移行したり、ミドルウェアのHBase、ZooKeeper、FlumeNGなんかを復習したり。</p>
+
+<p>一方、プライベートではChef (solo)、Vagrantなどの環境構築まわりを勉強していました。ここ最近、ようやく落ち着いてきたので、忘れないうちに一旦記事にしていこうと思ってます。</p>
+
+<h2>動作環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>Homebrew 0.9.5</li>
+</ul>
+
+
+<p>まずは、Homebrewを使ってMacの定番Ruby環境(rbenv+ruby-build)を構築します。</p>
+
+<p>はじめに、Homebrewをアップデートしておきます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">cd</span> <span class="k">$(</span>brew --previx<span class="k">)</span>
+</span><span class='line'><span class="nv">$ </span>brew update
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ruby-buildとrbenvのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install ruby-build
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/ruby-build/archive/v20141128.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; ./install.sh
+</span><span class='line'>🍺  /usr/local/Cellar/ruby-build/20141128: 139 files, 596K, built in 5 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>次に、Rubyのバージョン管理のためrbenvをインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install <span class="nv">rbenv</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv/archive/v0.4.0.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Caveats
+</span><span class='line'>To use Homebrew<span class="err">&#39;</span>s directories rather than ~/.rbenv add to your profile:
+</span><span class='line'>  <span class="nb">export </span><span class="nv">RBENV_ROOT</span><span class="o">=</span>/usr/local/var/rbenv
+</span><span class='line'>
+</span><span class='line'>To <span class="nb">enable </span>shims and autocompletion add to your profile:
+</span><span class='line'>  <span class="k">if </span>which rbenv &gt; /dev/null; <span class="k">then </span><span class="nb">eval</span> <span class="s2">&quot;$(rbenv init -)&quot;</span>; <span class="k">fi</span>
+</span><span class='line'><span class="o">==</span>&gt; Summary
+</span><span class='line'>🍺  /usr/local/Cellar/rbenv/0.4.0: 31 files, 152K, built in 6 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> ユーザごとに ~/.rbenvを使い分けるので RBENV_ROOT は設定しないでおきます。後は、Summaryの案内に従ってprofileにパスを追加します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vi ~/.bash_profile
+</span><span class='line'><span class="k">if </span>which rbenv &gt; /dev/null; <span class="k">then </span><span class="nb">eval</span> <span class="s2">&quot;$(rbenv init -)&quot;</span>; <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$PATH</span>
+</span><span class='line'><span class="nv">$HOME</span>/.rbenv/shims:
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>追加されてますね。</p>
+
+<p>rbrnv rehash の煩わしさから解放されるためにrbenv-gem-rehashを追加でイントールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install rbenv-gem-rehash
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv-gem-rehash/archive/v1.0.0.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv-gem-rehash/commit/0756890cfd9c7b
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Patching
+</span><span class='line'>patching file README.md
+</span><span class='line'>Hunk <span class="c">#1 succeeded at 23 (offset -2 lines).</span>
+</span><span class='line'>patching file etc/rbenv.d/exec/~gem-rehash.bash
+</span><span class='line'>patching file gems/rbenv-gem-rehash-1.0.0/lib/rubygems_plugin.rb
+</span><span class='line'>patching file rubygems_plugin.rb
+</span><span class='line'>patching file specifications/rbenv-gem-rehash-1.0.0.gemspec
+</span><span class='line'><span class="o">==</span>&gt; Caveats
+</span><span class='line'>If the GEM_PATH environment variable is undefined, rbenv-gem-rehash must
+</span><span class='line'>first execute the gem env gempath <span class="nb">command </span>to retrieve RubyGems<span class="err">&#39;</span> default path
+</span><span class='line'>so that it can can append to the path rather than override it. This can take
+</span><span class='line'>a <span class="k">while</span>--from a few hundred milliseconds on MRI to several seconds on
+</span><span class='line'>JRuby--so the default path <span class="k">for </span>the current Ruby version is cached to the
+</span><span class='line'>filesystem the first <span class="nb">time </span>it is retrieved.
+</span><span class='line'><span class="o">==</span>&gt; Summary
+</span><span class='line'>🍺  /usr/local/Cellar/rbenv-gem-rehash/1.0.0: 7 files, 24K, built in 4 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストールバージョンの確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install --list
+</span><span class='line'>Available versions:
+</span><span class='line'>  1.8.6-p383
+</span><span class='line'>  1.8.6-p420
+</span><span class='line'>    :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回は現時点での安定版 2.1.5 をインストールします。(環境によりますが結構時間かかります。)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install 2.1.5
+</span><span class='line'>Downloading ruby-2.1.5.tar.gz...
+</span><span class='line'>-&gt; http://dqw8nmjcqpjn7.cloudfront.net/4305cc6ceb094df55210d83548dcbeb5117d74eea25196a9b14fa268d354b100
+</span><span class='line'>Installing ruby-2.1.5...
+</span><span class='line'>Installed ruby-2.1.5 to /Users/a12019/.rbenv/versions/2.1.5
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span>rbenv versions
+</span><span class='line'>* system <span class="o">(</span><span class="nb">set </span>by /Users/a12019/.rbenv/version<span class="o">)</span>
+</span><span class='line'>2.1.5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>インストールできてますね。</p>
+
+<h2>デフォルトのRubyバージョンを変更</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv global 2.1.5
+</span><span class='line'><span class="nv">$ </span>rbenv versions
+</span><span class='line'>system
+</span><span class='line'>* 2.1.5 <span class="o">(</span><span class="nb">set </span>by /Users/a12019/.rbenv/version<span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span>ruby -v
+</span><span class='line'>ruby 2.1.5p273 <span class="o">(</span>2014-11-13 revision 48405<span class="o">)</span> <span class="o">[</span>x86_64-darwin12.0<span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>変わりました。</p>
+
+<p>  SystemのRubyを見に行く場合は、PATHが.rbenv/shims
+  を見に行ってるか確認してみてください。PATHが正しいようなら rbenv rehash でshims を更新させます。</p>
+
+<h2>Rubyバージョンの変更</h2>
+
+<p>インストールの手順と同じようにインストール可能なバージョンを確認します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install --list
+</span><span class='line'><span class="nv">$ </span>rbenv instal &lt;version&gt;
+</span><span class='line'><span class="nv">$ </span>rbenv global &lt;version&gt;
+</span><span class='line'><span class="nv">$ </span>ruby -v
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>バージョンが切り替わらない場合は、rbenv rehashします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv rehash
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストールバージョンの更新</h2>
+
+<p>Homebrewからruby-buildのバージョンをアップデートします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew upgrade ruby-build
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで ruby linstall &mdash;list の結果が更新されるはずです。</p>
+
+<h2>まとめ</h2>
+
+<p>rbenvとruby-buildを使うことで簡単にRubyのバージョンを切り替えることが出来るようになりました。rbenvはバージョンごとにgemのリポジトリを管理するので、PC本体の環境を汚さずに済みます。</p>
+
+<p>今回、Qiitaの投稿を参考にさせてもらいましたが、お陰で理解が深まりました。とは言え、公式ドキュメント読むために英語勉強せねば&hellip;</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://qiita.com/riocampos/items/f0fe7217972b312c4f3a">Ruby &ndash; rbenv を使っているなら rbenv-gem-rehash を使おう &ndash; Qiita</a></li>
+<li><a href="http://qiita.com/isaoshimizu/items/07ddd1e25996e19d45bf">rbenv, ruby-buildのインストール &ndash; Qiita</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-01T14:49:00+09:00" pubdate data-updated="true">Dec 1<span>st</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/12/01/provisioning-01/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/12/01/provisioning-01/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/28/java8-time/" title="Previous Post: Java8の新機能に触れる(4) Date and Time">&laquo; Java8の新機能に触れる(4) Date and Time</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/12/18/provisioning-02/" title="Next Post: プロビジョニング事始め (2) Vagrant編">プロビジョニング事始め (2) Vagrant編 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

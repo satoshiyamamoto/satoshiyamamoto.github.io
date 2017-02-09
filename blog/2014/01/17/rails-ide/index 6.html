@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rails開発環境の構築からHerokuデプロイまで - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="Railsに対応したIDEとしては、NetBeansが有名ですが私が思いたた時にはすでに開発停止になっていたようです。Eclipseプラグインとして提供されていたRadRailsもバージョン3.xは未対応です。多くの方はVim/Emacsで十分かと思いますが、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/01/17/rails-ide">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Rails開発環境の構築からHerokuデプロイまで</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T17:03:11+09:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Railsに対応したIDEとしては、NetBeansが有名ですが私が思いたた時にはすでに開発停止になっていたようです。Eclipseプラグインとして提供されていたRadRailsもバージョン3.xは未対応です。多くの方はVim/Emacsで十分かと思いますが、Java屋としてはIDEは不可欠でして消去法的にAptana Studio 3で開発環境を整えることとします。</p>
+
+<h2>Aptana Studioのセットアップ</h2>
+
+<p>下記のURLからStundard版をダウンロードします。</p>
+
+<ul>
+<li>Apatana: <a href="http://www.aptana.com/products/studio3/download">http://www.aptana.com/products/studio3/download</a></li>
+</ul>
+
+
+<p>アプリケーションフォルダにインストールしたら、快適に動作するようメモリの割当を2Mに増やします。(自己責任でお願いします)</p>
+
+<pre><code>$ vi /Applications/Aptana Studio 3/AptanaStudio3.app/Contents/MacOS/AptanaStudio3.ini
+    :
+  -vmargs
+  -Xm2048sm
+  -Xm2048xm
+</code></pre>
+
+<p>サーバーのデバッグ起動を有効にするためにruby-debug-ideをインストールします。これで、プログラムがブレークポイントに差し掛かるとパースペクティブがデバックモードに切り替わります。</p>
+
+<pre><code>$ gem install ruby-debug-ide
+Fetching: ruby-debug-ide-0.4.22.gem (100%)
+Building native extensions.  This could take a while...
+Successfully installed ruby-debug-ide-0.4.22
+1 gem installed
+Installing ri documentation for ruby-debug-ide-0.4.22...
+Installing RDoc documentation for ruby-debug-ide-0.4.22...
+</code></pre>
+
+<h2>Herokuへのデプロイ</h2>
+
+<p>Herokuは、Railsの実行環境を提供している老舗のPaaS企業です。Facebookアプリのデフォルト環境であったり、Rub on Railsの他に、Node.ja、Scala、Clojureなど様々な言語の利用が可能です。まず、下記のURLからアカウントを作成しSSHの公開鍵を登録しておきます。</p>
+
+<ul>
+<li>Heroku: <a href="https://www.heroku.com/">https://www.heroku.com/</a></li>
+</ul>
+
+
+<p>公開鍵は、Account編集ページのSSH Keys欄で登録できます。公開鍵は、下記のコマンドで予めクリップボードにコピーしておくと楽です。</p>
+
+<pre><code>$ cat ~/.ssh/id_rsa.pub | pbcopy
+</code></pre>
+
+<p>登録が完了したらHeroku Toolbeltをインストールします。Heroku Toolbeltは、Heroku Appsを管理するためのコマンドラインツールです。インストールが終わったら、herokuコマンドでログインできるか試してみます。</p>
+
+<ul>
+<li>Heroku Toolbelt: <a href="https://toolbelt.heroku.com/">https://toolbelt.heroku.com/</a></li>
+</ul>
+
+
+<p>コマンドは次のとおりです。</p>
+
+<pre><code>$ heroku login
+Enter your Heroku credentials.
+Email: satoshi@yamamoto.name
+Password (typing will be hidden): ********
+Authentication successful.
+</code></pre>
+
+<p>無事ログインできました。herokuコマンドからでも公開鍵の登録やアドオンの設定が可能です。詳しくはheroku &mdash;helpコマンドか、ホームページを参照してください。</p>
+
+<h3>ClearDB (MySQL)アドオンの設定</h3>
+
+<p>HerokuのRails環境では、デフォルトでPostgreSQLが指定されていますが、アドオンでClearDBというMySQLサーバーに変更することができます。アドオンを利用するには、予めクレジットカードの番号を登録しておく必要があります。下記のコマンドでアドオンを追加します。</p>
+
+<pre><code>$ heroku addons:add cleardb:ignite
+Adding cleardb on [app name]... done, v3 (free)
+Use `heroku addons:docs cleardb` to view documentation.
+</code></pre>
+
+<p>heroku configコマンドで接続情報を確認します。接続URLからユーザー名、パスワードなど接続するために必要な情報が参照できます。この値を使うことで直接ClearDBにも接続できます。</p>
+
+<pre><code>$ heroku config | grep CLEARDB_DATABASE_URL
+CLEARDB_DATABASE_URL: mysql://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true
+</code></pre>
+
+<p>Herokuの環境変数に上記の接続文字列を設定します。</p>
+
+<pre><code>$ heroku config:set DATABASE_URL='mysql2://[username]:[password]@us-cdbr-east-04.cleardb.com/[database]?reconnect=true'
+</code></pre>
+
+<p>続いてRailsがproduction環境でMySQLを使用するようにGemfileとdatabase.ymlと設定ファイルを書き換えます。</p>
+
+<pre><code>$ vi Gemfile
+gem 'sqlite3', :group =&gt; [:development, :test]
+group :production do
+  gem 'mysql2'
+end
+</code></pre>
+
+<p>（※database.yml修正しなくてもMySQL使えてますが念のため&hellip;)</p>
+
+<pre><code>$ vi config/database.yml
+production:
+  adapter: mysql2
+  username: [username]
+  password: [password]
+  host: [hostname]
+  database: [database]
+</code></pre>
+
+<h3>HerokuからSMTPでメールを送信する</h3>
+
+<p>herokuコマンドでSendGridのアドオンを追加します。</p>
+
+<pre><code>$ heroku addons:add sendgrid:starter
+</code></pre>
+
+<p>続いてconfig/environments/production.rbにActionMailerの設定を記述します。</p>
+
+<pre><code># Log the query plan for queries taking more than this (works
+# with SQLite, MySQL, and PostgreSQL)
+# config.active_record.auto_explain_threshold_in_seconds = 0.5
+config.action_mailer.smtp_settings = {
+  address:        'smtp.sendgrid.net',
+  port:           '587',
+  authentication: :plain,
+  user_name:      ENV['SENDGRID_USERNAME'],
+  password:       ENV['SENDGRID_PASSWORD'],
+  domain:         'herokuapp.com'
+}
+</code></pre>
+
+<h3>参考</h3>
+
+<ul>
+<li><a href="http://straitwalk.hatenablog.com/entry/2013/08/11/004648">Heroku+Rails4+Devise+MySQL+Redis &ndash; 成らぬは人の為さぬなりけり</a></li>
+<li><a href="https://devcenter.heroku.com/articles/cleardb">ClearDB MySQL Database | Heroku Dev Center</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-17T17:03:11+09:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/01/17/rails-ide/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/01/17/rails-ide/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/01/06/building-rails-develop-environment/" title="Previous Post: Mac OS XにRails開発環境を構築する">&laquo; Mac OS XにRails開発環境を構築する</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/11/raile-migrate-with-mysql/" title="Next Post: HerokuのClearDBでdb:migrateを実行する">HerokuのClearDBでdb:migrateを実行する &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

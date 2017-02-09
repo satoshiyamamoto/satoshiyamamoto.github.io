@@ -1,0 +1,594 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>プロビジョニング事始め (2) Vagrant編 - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="Vagrantは、VirtualBoxなどの仮想化ソフトウェアのラッパーです。フリーで公開されている様々なゲストOSのイメージを利用でき、煩わしいインストーラに時間を取られることなく、素早く簡単に開発環境を構築できます。 まずは、Vagrantのインストールから始め、Guest &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/12/18/provisioning-02">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">プロビジョニング事始め (2) Vagrant編</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-18T10:49:04+09:00" pubdate data-updated="true">Dec 18<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Vagrantは、VirtualBoxなどの仮想化ソフトウェアのラッパーです。フリーで公開されている様々なゲストOSのイメージを利用でき、煩わしいインストーラに時間を取られることなく、素早く簡単に開発環境を構築できます。</p>
+
+<p>まずは、Vagrantのインストールから始め、Guest OSの基本的な設定と、さらには簡単なプロビジョニングを実行するところまでを記していきます。(VirtualBoxは既にインストールされているものとします)</p>
+
+<h2>動作環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>Vagrant 1.7.2</li>
+<li>VirtualBox 4.3.20</li>
+<li>Opscode Bento</li>
+</ul>
+
+
+<h2>Vagrantのインストール</h2>
+
+<p><a href="https://github.com/caskroom/homebrew-cask">Homebrew-cask</a>を使ってコマンドラインからVagrantのdmgパッケージを取得します。まず、先に<code>Homebrew-cask</code>をインストールします。<code>brew</code>コマンドは次のとおりです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install caskroom/cask/brew-cask
+</span><span class='line'><span class="o">==</span>&gt; Installing brew-cask from caskroom/homebrew-cask
+</span><span class='line'><span class="o">==</span>&gt; Cloning https://github.com/caskroom/homebrew-cask.git
+</span><span class='line'>Updating /Library/Caches/Homebrew/brew-cask--git
+</span><span class='line'><span class="o">==</span>&gt; Checking out tag v0.53.3
+</span><span class='line'>🍺  /usr/local/Cellar/brew-cask/0.53.3: 2421 files, 9.5M, built in 75 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>続いて<code>vagrant</code>をインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>9<span class="nv">$ </span>brew cask install <span class="nv">vagrant</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.dmg
+</span><span class='line'>Already downloaded: /Library/Caches/Homebrew/vagrant-1.7.2.dmg
+</span><span class='line'><span class="o">==</span>&gt; Running installer <span class="k">for </span>vagrant; your password may be necessary.
+</span><span class='line'><span class="o">==</span>&gt; Package installers may write to any location; options such as --appdir are ignored.
+</span><span class='line'><span class="o">==</span>&gt; installer: Package name is <span class="nv">Vagrant</span>
+</span><span class='line'><span class="o">==</span>&gt; installer: Upgrading at base path /
+</span><span class='line'><span class="o">==</span>&gt; installer: The upgrade was successful.
+</span><span class='line'>🍺  vagrant staged at <span class="s1">&#39;/opt/homebrew-cask/Caskroom/vagrant/1.7.2&#39;</span> <span class="o">(</span>6 files, 79M<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>インストールが完了すると<code>vagrant</code>コマンド本体と実行に必要なモジュールが一緒にインストールされます。<code>vagrant</code>コマンドは以前RubyGemsで配布されていたようですが、依存関係の問題を解消するため、実行時に同梱されたRubyモジュールを使用します。</p>
+
+<h2>ゲストOSの管理</h2>
+
+<p>Vagrantでは、ゲストOSのことをBoxと呼びます。VagrantのBoxはフリーで公開されているものも多く目的によって適宜選ぶと良いかと思います。</p>
+
+<ul>
+<li>Bento (Opscode): <a href="https://github.com/opscode/bento">https://github.com/opscode/bento</a></li>
+<li>Vagrantbox.es: <a href="http://www.vagrantbox.es">http://www.vagrantbox.es</a></li>
+</ul>
+
+
+<p>boxはvagrantのサブコマンドとなっていて下記の書式で利用します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box
+</span><span class='line'>Usage: vagrant box &lt;subcommand&gt; <span class="o">[</span>&lt;args&gt;<span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>Available subcommands:
+</span><span class='line'>     add
+</span><span class='line'>     list
+</span><span class='line'>     outdated
+</span><span class='line'>     remove
+</span><span class='line'>     repackage
+</span><span class='line'>     update
+</span><span class='line'>
+</span><span class='line'>For <span class="nb">help </span>on any individual subcommand run <span class="sb">`</span>vagrant box &lt;subcommand&gt; -h<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>新たにBoxを追加するには<code>vagrant box add</code>の後にBox名、イメージのURLを指定します。例えばOpscodeのCentOS 7.0を追加するには次のようにします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box add opscode-centos-7.0 http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-7.0_chef-provisionerless.box
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>vagrant box list</code>コマンドでBoxの一覧を確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box list
+</span><span class='line'>opscode-centos-6.6   <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span><span class='line'>opscode-centos-7.0   <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span><span class='line'>opscode-ubuntu-14.04 <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pluginのインストール</h2>
+
+<p>Pluginを利用すればVagrantの機能を大きく拡張できます。Pluginもvagrantのサブコマンドになっており次の書式で呼び出せます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant plugin -h
+</span><span class='line'>Usage: vagrant plugin &lt;<span class="nb">command</span>&gt; <span class="o">[</span>&lt;args&gt;<span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>Available subcommands:
+</span><span class='line'>     install
+</span><span class='line'>     license
+</span><span class='line'>     list
+</span><span class='line'>     uninstall
+</span><span class='line'>     update
+</span><span class='line'>
+</span><span class='line'>For <span class="nb">help </span>on any individual <span class="nb">command </span>run <span class="sb">`</span>vagrant plugin COMMAND -h<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回は仮想マシンの状態をロールバック可能にする必須の<code>sahara</code>プラグインをインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant plugin install sahara
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>基本設定</h2>
+
+<h3>仮想マシンの初期化</h3>
+
+<p>仮想マシンを初期化するには<code>vagrant init &lt;box name&gt;</code>コマンドを実行します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant init opscode-centos-7.0
+</span><span class='line'>A <span class="sb">`</span>Vagrantfile<span class="sb">`</span> has been placed in this directory. You are now
+</span><span class='line'>ready to <span class="sb">`</span>vagrant up<span class="sb">`</span> your first virtual environment! Please <span class="nb">read</span>
+</span><span class='line'>the comments in the Vagrantfile as well as documentation on
+</span><span class='line'><span class="sb">`</span>vagrantup.com<span class="sb">`</span> <span class="k">for </span>more information on using Vagrant.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> <code>init</code>コマンドを実行するとカレントディレクトリに<code>Vagrantfile</code>が作成されます。</p>
+
+<p> <code>Vagrantfile</code>は言わば仮想マシンの設定ファイルです。Vagrantは仮想マシンを立ち上げる際に、この<code>Vagrantfile</code>の内容に従ってマシンを構築します。</p>
+
+<h3>ネットワークの設定</h3>
+
+<p>仮想マシンにNAT、またはブリッジを使って接続したい場合、<code>Vagrantfile</code>を編集してネットワークの設定を有効にします。</p>
+
+<p>NATでホストからのみアクセスさせるには、下記のように<code>private_network</code>を有効にします。これでホストOSから仮想マシンには<code>192.168.33.10</code>でアクセスできるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.10&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ブリッジ接続でLANに参加させるには、<code>public_network</code>の設定を有効にします。デフォルトでDHCP接続、固定IPを割り当てる場合は、<code>ip: "&lt;ipv4&gt;"</code>を指定します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># dhcp</span>
+</span><span class='line'>config.vm.network <span class="s2">&quot;public_network&quot;</span>
+</span><span class='line'><span class="c"># static</span>
+</span><span class='line'>config.vm.network <span class="s2">&quot;public_network&quot;</span>, ip: <span class="s2">&quot;192.168.0.17&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ホスト名の設定</h3>
+
+<p>ホスト名は、<code>Vagrantfile</code>で次のように指定します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.hostname <span class="o">=</span> <span class="s2">&quot;www.example.com&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>仮想マシンの起動</h3>
+
+<p>仮想マシンを起動するには<code>vagrant up</code>コマンドを呼ぶだけです。仮想マシンの初回起動時に限り、後述する<code>provision</code>がタスクとして実行されます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant up
+</span><span class='line'>Bringing machine <span class="s1">&#39;default&#39;</span> up with <span class="s1">&#39;virtualbox&#39;</span> provider...
+</span><span class='line'><span class="o">==</span>&gt; default: Importing base box <span class="s1">&#39;opscode-centos-7.0&#39;</span>...
+</span><span class='line'><span class="o">==</span>&gt; default: Matching MAC address <span class="k">for </span>NAT networking...
+</span><span class='line'><span class="o">==</span>&gt; default: Setting the name of the VM: fuelphp_default_1423639951154_30886
+</span><span class='line'>    :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>プロンプトが戻った後に、<code>vagrant status</code>コマンドを実行すると<code>running</code>になっているのが確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant status
+</span><span class='line'>Current machine states:
+</span><span class='line'>
+</span><span class='line'>default                   running <span class="o">(</span>virtualbox<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>SSHによるログイン</h3>
+
+<p>仮想マシンには、<code>vagrant ssh</code>コマンドでログインできます。また、仮想マシンのSSHポートはホストの<code>2222</code>ポートにマッピングされているので、通常の<code>ssh</code>コマンドでもログインできます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant ssh
+</span><span class='line'>    or
+</span><span class='line'><span class="nv">$ </span>ssh -p 2222 vagrant@localhost <span class="c"># password: vagrant</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>高度な設定</h2>
+
+<p>Vagrantでは、<code>provision</code>コマンドを使って<code>Vagrantfile</code>に記載されたShellスクリプトやChefのレシピを実行することができます。例えば、Shellスクリプトでカーネルパラメータの設定を変更したり、<code>Chef</code>で構成管理を行うことができます。</p>
+
+<h3>Shellによる簡単なプロビジョニング</h3>
+
+<p>Shellスクリプトで<code>yum fastestmirror</code>プラグインを実行する例です。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.provision <span class="s2">&quot;shell&quot;</span>, inline: <span class="s">&lt;&lt;-SHELL</span>
+</span><span class='line'><span class="s">   sudo yum clean all</span>
+</span><span class='line'><span class="s">SHELL</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> <code>vagrant provision</code>コマンドで実行できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant <span class="nv">provision</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Running provisioner: shell...
+</span><span class='line'>    default: Running: inline <span class="nv">script</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Loaded plugins: fastestmirror
+</span><span class='line'>     :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Chef Zeroによるプロビジョニング</h3>
+
+<p>ChefとローカルモードのZeroについては別エントリーで取り上げるとして、今回は簡単に<code>provision</code>でChef Zeroを実行する例を述べます。DSLの詳細なオプションは、Vagrantの<a href="https://docs.vagrantup.com/v2/provisioning/chef_zero.html">ウェブサイト</a>で確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.provision <span class="s2">&quot;chef_zero&quot;</span> <span class="k">do</span> |chef|
+</span><span class='line'>  chef.cookbooks_path <span class="o">=</span> <span class="s2">&quot;berks-cookbooks&quot;</span>
+</span><span class='line'>  chef.run_list <span class="o">=</span> <span class="s2">&quot;recipe[roles::node.erver]&quot;</span>
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>先ほどと同様に<code>vagrant provision</code>コマンドで実行します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant <span class="nv">provision</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Running provisioner: chef_zero...
+</span><span class='line'><span class="o">==</span>&gt; default: Detected Chef <span class="o">(</span>latest<span class="o">)</span> is already installed
+</span><span class='line'>Generating chef JSON and uploading...
+</span><span class='line'><span class="o">==</span>&gt; default: Running chef-zero...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>複数VMを立ち上げる</h3>
+
+<p>VagrantでゲストVMを複数立ち上げるには<code>config.vm.define</code>で定義します。VMの起動はシーケンシャルに実行されるため低スペックマシンの場合、起動が終わるまで多少時間掛かります。タイムアウトが発生する場合は、<code>config.vm.boot_timeout</code>の秒数をデフォルトの300秒より長くするとよいでしょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.define <span class="s2">&quot;node01&quot;</span> <span class="k">do</span> |node|
+</span><span class='line'>  node.vm.hostname <span class="o">=</span> <span class="s2">&quot;node01.example.com&quot;</span>
+</span><span class='line'>  node.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.10&quot;</span>
+</span><span class='line'>end
+</span><span class='line'>
+</span><span class='line'>config.vm.define <span class="s2">&quot;node02&quot;</span> <span class="k">do</span> |node|
+</span><span class='line'>  node.vm.hostname <span class="o">=</span> <span class="s2">&quot;node02.example.com&quot;</span>
+</span><span class='line'>  node.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.11&quot;</span>
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>次はChef ZeroとBerkshelfを使ってサーバ構築の自動化に挑戦したいと思います。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://docs.vagrantup.com/v2/vagrantfile/machine_settings.html">config.vm &ndash; Vagrantfile &ndash; Vagrant Documentation</a></li>
+<li><a href="http://qiita.com/sho7650/items/cf5a586713f0aec86dc0">Vagrant で複数のVM を立ち上げて、お互いに通信できるようにするには &ndash; Qiita</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-18T10:49:04+09:00" pubdate data-updated="true">Dec 18<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/12/18/provisioning-02/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/12/18/provisioning-02/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/01/provisioning-01/" title="Previous Post: プロビジョニング事始め (1) ruby環境構築編">&laquo; プロビジョニング事始め (1) ruby環境構築編</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2016/01/30/provisioning-03/" title="Next Post: プロビジョニング事始め (3) Chef Zero編">プロビジョニング事始め (3) Chef Zero編 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

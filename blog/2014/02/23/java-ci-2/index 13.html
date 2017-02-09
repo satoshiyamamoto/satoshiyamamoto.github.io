@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Java CI環境(Jenkins+α)構築のおさらい その2 Mavenリポジトリ構築編 - 俺のMoleskin.log</title>
+  <meta name="author" content="山本 聡">
+
+  
+  <meta name="description" content="前回に引き続きJennkinsでJavaのCI環境を構築していきます。構築する環境は以下の通りです。 環境 CentOS 6.5 (x86_64)
+Subversion 1.7.4 (+Apache 2.2 WebDAV)
+Nexus OSS 2.7.1-01
+Jenkins 1.551 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://satoshiyamamoto.github.io/blog/2014/02/23/java-ci-2">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:satoshiyamamoto.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Java CI環境(Jenkins+α)構築のおさらい その2 Mavenリポジトリ構築編</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-23T10:23:41+09:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>前回に引き続きJennkinsでJavaのCI環境を構築していきます。構築する環境は以下の通りです。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>CentOS 6.5 (x86_64)</li>
+<li>Subversion 1.7.4 (+Apache 2.2 WebDAV)</li>
+<li>Nexus OSS 2.7.1-01</li>
+<li>Jenkins 1.551</li>
+</ul>
+
+
+<h2>Nexus OSSのインストール</h2>
+
+<p>NexusはMavenの成果物管理ツールとして最も多く使われているプロダクトです。まず、Nexusをインストールする前にOSの起動ユーザを作成します。</p>
+
+<pre><code># groupadd nexus
+# useradd -g nexus -s /bin/bash nexus
+</code></pre>
+
+<p>Nexus OSSのバンドル版をSonatypeのページからダウンロードします。</p>
+
+<pre><code># cd /usr/local/src
+# wget http://www.sonatype.org/downloads/nexus-latest-bundle.tar.gz
+</code></pre>
+
+<p>ダウンロードが完了したら、tar.gzを/usr/localに解凍し権限を変更します。</p>
+
+<pre><code># tar zxvf nexus-latest-bundle.tar.gz 
+# mv nexus-[version] sonatype-work /usr/local
+# choen -R nexus. nexus-[version] sonatype-work
+</code></pre>
+
+<p>続いて起動スクリプトの編集と自動起動の設定を行います。(JAVA_HOMEが設定されているものとします)</p>
+
+<pre><code># cd /etc/init.d/
+# cp /usr/local/nexus/bin/nexus .
+# chmod 755 ./nexus
+# vi ./nexus
+    :
+# Set this to the root of the Nexus installation
+NEXUS_HOME="/usr/local/nexus"
+    :
+# NOTE - This will set the user which is used to run the Wrapper as well as
+#  the JVM and is not useful in situations where a privileged resource or
+#  port needs to be allocated prior to the user being changed.
+RUN_AS_USER=nexus
+</code></pre>
+
+<p>chkconfigに/etc/init.d/nexusを追加しサーバーを起動します。</p>
+
+<pre><code># cd /etc/init.d/
+# chkconfig --add nexus
+# chkconfig --levels 345 nexus on
+# service nexus start
+Starting Sonatype Nexus...
+</code></pre>
+
+<p>ブラウザで <a href="http://localhost:8081/nexus">http://localhost:8081/nexus</a> にアクセスし次の画面が表示されていれば成功です。</p>
+
+<p><img src="/images/20140222/nexus_capture.png" alt="Nexus Capture" /></p>
+
+<h2>Maven設定ファイルの編集</h2>
+
+<p>Mavenプロジェクトでデプロイを行う際、Nexusにアクセスできるユーザが必要です。Nexusイントール時に作成されている既存ユーザから、今回はdeploymentユーザを使ってデプロイを行います。既存ユーザと役割は下記のとおりです。</p>
+
+<ul>
+<li>admin: 管理者ユーザ。Nexusの管理とデプロイなど全ての機能が利用可能です</li>
+<li>deploymenet: デプロイユーザ。リポジトリの参照とデプロイが可能です</li>
+<li>anonymous: 匿名ユーザ。publicリポジトリの参照がです</li>
+</ul>
+
+
+<p>$M2_HOME/con/settings.xml にdeploymenetユーザを追加します。</p>
+
+<pre><code>$ vi $M2_HOME/conf/settings.xml
+    :
+&lt;servers&gt;
+  &lt;server&gt;
+    &lt;id&gt;nexus&lt;/id&gt;
+    &lt;username&gt;deployment&lt;/username&gt;
+    &lt;password&gt;deployment123&lt;/password&gt;
+  &lt;/server&gt;
+&lt;/servers&gt;
+</code></pre>
+
+<h2>Mavenプロジェクトでデプロイの設定</h2>
+
+<p>pom.xmlのデプロイ管理の要素に、SnapthotsとReleasesリポジトリの設定を追加します。具体的には下記のようになります。また、リポジトリのIDは前述のID(nexus)と一致している必要があります。</p>
+
+<pre><code>&lt;distributionManagement&gt;
+  &lt;repository&gt;
+    &lt;id&gt;nexus&lt;/id&gt;
+    &lt;name&gt;Releases&lt;/name&gt;
+    &lt;url&gt;http://localhost:8081/nexus/content/repositories/releases/&lt;/url&gt;
+  &lt;/repository&gt;
+  &lt;snapshotRepository&gt;
+    &lt;id&gt;nexus&lt;/id&gt;
+    &lt;name&gt;Snapshots&lt;/name&gt;
+    &lt;url&gt;http://localhost:8081/nexus/content/repositories/snapshots/&lt;/url&gt;
+  &lt;/snapshotRepository&gt;
+&lt;/distributionManagement&gt;
+</code></pre>
+
+<h2>Maven Plug-inでリリース</h2>
+
+<p>ここまで準備ができたら、最後にMavenのリリースプラグインを使ってデプロイを行います。まずは、下記のコマンドでSnapshotsリポジトリに配備出来るか確認します。</p>
+
+<pre><code>$ mvn deploy
+</code></pre>
+
+<p>Mavenのrelease:prepareおよびrelease:performを実行することで、SCMでリリースビルドのタグ付け、さらにNexusのReleaseリポジトリにデプロイまで一括して行えます。
+まず、release:prepareの質問に回答しリリースの準備を行います。</p>
+
+<pre><code>$ mvn release:prepare
+    :
+[INFO] Checking dependencies and plugins for snapshots ...
+What is the release version for "project"? (name.satoshi.yamamoto:project) 1.0: :
+What is SCM release tag or label for "project"? (name.satoshi.yamamoto:project) project-1.0: :
+What is the new development version for "project"? (name.satoshi.yamamoto:project) 1.1-SNAPSHOT: :
+</code></pre>
+
+<p>最後にrelease:performでReleaseリポジトリにデプロイします。</p>
+
+<pre><code>$ mvn release:perform
+     :
+[INFO] Uploaded: http://localhost:8081/nexus/content/repositories/releases/name/satoshi/yamamoto/project/1.0/project-1.0.jar (3 KB at 8.4 KB/sec)
+     :
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 14.967 s
+[INFO] Finished at: 2014-02-27T15:04:22+09:00
+[INFO] Final Memory: 9M/28M
+[INFO] ------------------------------------------------------------------------
+</code></pre>
+
+<p>以上でMavenリポジトリ編を終わります。ここまで来れば後はJenkinsのインストールとJobを作成するのみです。ふぅぅ&hellip;。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://news.mynavi.jp/column/ide/129/">イマドキのIDE事情 (129) リポジトリ管理ツール「Nexus」でMavenをさらに活用しよう! | マイナビニュース</a></li>
+<li><a href="http://www.in-vitro.jp/blog/index.cgi/Maven/20081007_01.htm">試験管のなかのコード :: Maven2 の release プラグインにチャレンジ</a></li>
+<li><a href="http://green-tea-stalk.blogspot.jp/2012/09/maven-jenkins-sonatype-nexus.html">Maven + Jenkins + Sonatype Nexus でビルド環境を構築</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">山本 聡</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-23T10:23:41+09:00" pubdate data-updated="true">Feb 23<span>rd</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://satoshiyamamoto.github.io/blog/2014/02/23/java-ci-2/" data-via="satoshiyamamot" data-counturl="http://satoshiyamamoto.github.io/blog/2014/02/23/java-ci-2/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/21/java-ci-1/" title="Previous Post: Java CI環境(Jenkins+α)構築のおさらい その1 SVN構築編">&laquo; Java CI環境(Jenkins+α)構築のおさらい その1 SVN構築編</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/01/java-ci-3/" title="Next Post: Java CI環境(Jenkins+α)構築のおさらい その3 Jenkins構築編">Java CI環境(Jenkins+α)構築のおさらい その3 Jenkins構築編 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2017/01/24/react-advance/">React初めました (応用編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2017/01/23/react-basic/">React初めました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2017 - 山本 聡 -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

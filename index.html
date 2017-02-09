@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>私のMoleskin::モッさんのブログ</title>
+  <title>俺のMoleskin.log</title>
   <meta name="author" content="山本 聡">
 
   
-  <meta name="description" content="Railsのインストール gemでrailsをインストールします。RailsによるアジャイルWebアプリケーション開発 第4版の日本語版が、Rails 3.x時点の執筆なのでインストールするバージョンもそれに合わせます。インストールが完了したら、バージョンを確認します。 $ gem install &hellip;">
+  <meta name="description" content="近頃のフロントエンド技術の過熱ぶりに触発されてサーバーサイドの裏方から表舞台に興味が湧き始めました。
+この投稿ではReactでComponentベースのアプリケーションを作成するにあたって、具体的な実装例について記していきます。 Componentのネスト 通常のDOMツリーと同じように、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -21,7 +22,7 @@
   <link rel="canonical" href="http://satoshiyamamoto.github.io">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="私のMoleskin::モッさんのブログ" type="application/atom+xml">
+  <link href="/atom.xml" rel="alternate" title="俺のMoleskin.log" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
@@ -36,9 +37,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">私のMoleskin::モッさんのブログ</a></h1>
-  
-    <h2>WEBやプログラミングに関する技術など、自分の興味のあるネタを残していきます。</h2>
+  <h1><a href="/">俺のMoleskin.log</a></h1>
   
 </hgroup>
 
@@ -71,7 +70,7 @@
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/01/06/rails/">Mac OS XにRails開発環境を構築する</a></h1>
+      <h1 class="entry-title"><a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a></h1>
     
     
       <p class="meta">
@@ -87,93 +86,1216 @@
   
 
 
-<time datetime="2014-01-06T16:53:03+09:00" pubdate data-updated="true">Jan 6<span>th</span>, 2014</time>
+<time datetime="2017-01-24T10:00:19+09:00" pubdate data-updated="true">Jan 24<span>th</span>, 2017</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><h2>Railsのインストール</h2>
+  <div class="entry-content"><p>近頃のフロントエンド技術の過熱ぶりに触発されてサーバーサイドの裏方から表舞台に興味が湧き始めました。
+この投稿ではReactでComponentベースのアプリケーションを作成するにあたって、具体的な実装例について記していきます。</p>
 
-<p>gemでrailsをインストールします。<a href="http://www.amazon.co.jp/Rails%E3%81%AB%E3%82%88%E3%82%8B%E3%82%A2%E3%82%B8%E3%83%A3%E3%82%A4%E3%83%ABWeb%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E9%96%8B%E7%99%BA-%E7%AC%AC4%E7%89%88-Sam-Ruby/dp/4274068668">RailsによるアジャイルWebアプリケーション開発 第4版</a>の日本語版が、Rails 3.x時点の執筆なのでインストールするバージョンもそれに合わせます。インストールが完了したら、バージョンを確認します。</p>
+<h2>Componentのネスト</h2>
 
-<pre><code>$ gem install rails -v "~&gt;3.2.0" #3.2系の最新
-$ rails -v
-Rails 3.2.16
-</code></pre>
+<p>通常のDOMツリーと同じように、要素のテキストノードに配置します。親のComponentからは  <code>props.children</code> で参照できます。</p>
 
-<p>一度、最新の4.x系をインストールしていると正しく3.x系が表示されない場合があります。その時は次のコマンドで4.x系の不要なモジュールが残っていないか確認してみてください。</p>
+<p data-height="465" data-theme-id="0" data-slug-hash="JENVRE" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Nested Component" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/JENVRE/">React - Nested Component</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 
-<pre><code>$ gem list | grep railties
-railties (4.0.2, 3.2.16)
-</code></pre>
 
-<p>削除するにはバージョンを指定してrailtiesを削除します。</p>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-<pre><code>$ gem uninstall railties -v "4.0.2"
-</code></pre>
 
-<p>また、Databaseに関してはローカルの開発ではSQLite3を使い、herokuのデプロイ後はPostgreSQLを使います。コマンドラインからデータを参照するためにsqlite3をインストールします。</p>
+<h2>データバインディング</h2>
 
-<pre><code>$ brew install sqlite3
-==&gt; Downloading https://downloads.sf.net/project/machomebrew/Bottles/sqlite-3.8.2.m
-######################################################################## 100.0%
-==&gt; Pouring sqlite-3.8.2.mountain_lion.bottle.tar.gz
-==&gt; Caveats
-This formula is keg-only, so it was not symlinked into /usr/local.
+<h3><code>Event.target</code> を使った単一フォームのコントロール</h3>
 
-Mac OS X already provides this software and installing another version in
-parallel can cause all kinds of trouble.
+<p><code>Event.target</code> を使ったフォームコントロールのサンプルです。フォームにテキスト入力するとReactのComponentがインタラクティブに更新されます。</p>
 
-OS X provides an older sqlite3.
+<p>テキストフィールドの値が変化すると <code>onChange</code> イベントで値を取得し、App ComponentのStateに値をセットします。Stateが変化すると、ReactのVirtualDOMが変更を検知し、その差分のみを再描画します。</p>
 
-Generally there are no consequences of this for you. If you build your
-own software and it requires this formula, you'll need to add to your
-build variables:
+<p data-height="505" data-theme-id="0" data-slug-hash="ObrPEL" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Update state" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/ObrPEL/">React - Update state</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 
-    LDFLAGS:  -L/usr/local/opt/sqlite/lib
-    CPPFLAGS: -I/usr/local/opt/sqlite/include
 
-==&gt; Summary
-🍺  /usr/local/Cellar/sqlite/3.8.2: 9 files, 2.0M
-</code></pre>
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
 
-<p>SQLの結果が見やすいようsqlite3のコマンドにヘッダー表示と列幅調整モードのオプションを指定します。</p>
 
-<pre><code>vi ~/.bashrc
-     :
-alias sqlite3='sqlite3 -header -column'
+<br />
 
-$ sqlite3 
-SQLite version 3.7.12 2012-04-03 19:43:07
-Enter ".help" for instructions
-Enter SQL statements terminated with a ";"
-sqlite&gt; .show
-     echo: off
-  explain: off
-  headers: on
-     mode: column
-nullvalue: ""
-   output: stdout
-separator: "|"
-    stats: off
-    width:
-</code></pre>
 
-<h2>IDEを選ぶ</h2>
+<h3>ref属性を使った複数フォームのコントロール</h3>
 
-<p>これは完全に好みですが、3.x系でrailsプロジェクトをサポートしているAptana Studio 3をインストールします。NetBeans、EclipseプラグインであるRadRails 2は、3.xのサポートがありませんでした。</p>
+<p>refを使って複数のフォームをコントロールできます。
+<code>ref="..."</code> で名前付けした要素は <code>this.refs.xxx</code> で参照することができます。</p>
 
-<p>Apatana: <a href="http://www.aptana.com/products/studio3/download">http://www.aptana.com/products/studio3/download</a></p>
+<p>次のサンプルコードの例では、 <code>foo</code> と <code>bar</code> で名前付しています。</p>
 
-<p>次は、IDEの設定とHerokuへデプロイするまでの手順を記します。</p>
+<p data-height="765" data-theme-id="0" data-slug-hash="pRPmPe" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Input Data Handling" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/pRPmPe/">React - Input Data Handling</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
 
-<h3>参考</h3>
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<br />
+
+
+<h3>参照代入を使ったフォームのコントロール</h3>
+
+<p>少しローレベルな方法ですが、ref属性はコールバック関数を渡すことができ、そのコールバック関数の中でフォームの参照をComponentのインスタンス変数に代入できます。次のサンプルでは <code>this.foo</code> にフォーム参照を代入してます。</p>
+
+<p data-height="565" data-theme-id="0" data-slug-hash="jymodL" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="jymodL" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/jymodL/">jymodL</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<br />
+
+
+<h3>子Componentが所有するフォームのコントロール</h3>
+
+<p>ReactDOMの <code>findDOMNode</code> メソッドを使って操作します。
+あらかじめ、子コンポーネントの参照を <code>this.foo</code> 、 <code>this.bar</code> に格納した上で、
+<code>ReactDOM.findDOMNode</code> に子コンポーネントの参照を渡すことで、値の取得ができるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">&#39;react&#39;</span>
+</span><span class='line'><span class="kr">import</span> <span class="nx">ReactDOM</span> <span class="nx">from</span> <span class="s1">&#39;react-dom&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">App</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">constructor</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kr">super</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">foo</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">bar</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">update</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">foo</span><span class="o">:</span> <span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">findDOMNode</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">foo</span><span class="p">).</span><span class="nx">value</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">bar</span><span class="o">:</span> <span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">findDOMNode</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">bar</span><span class="p">).</span><span class="nx">value</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">render</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Input</span>
+</span><span class='line'>          <span class="nx">ref</span><span class="o">=</span><span class="p">{</span><span class="nx">component</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="nx">component</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">update</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)}</span> <span class="o">/&gt;</span> <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">foo</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">hr</span><span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Input</span>
+</span><span class='line'>          <span class="nx">ref</span><span class="o">=</span><span class="p">{</span><span class="nx">component</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">bar</span> <span class="o">=</span> <span class="nx">component</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">update</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)}</span> <span class="o">/&gt;</span> <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">bar</span><span class="p">}</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">Input</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">render</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">onChange</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">update</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">App</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>子Componentにref属性で名前付をしておくと、親Componentからでも簡単にフォームを参照できます。
+前述の <code>ReactDOM.findDOMNode(this.foo).value</code> が <code>this.foo.refs.input.value</code> といった様に、より直感的に呼び出せる様になります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kr">import</span> <span class="nx">React</span> <span class="nx">from</span> <span class="s1">&#39;react&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">App</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">constructor</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kr">super</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">foo</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">bar</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">update</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">foo</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">foo</span><span class="p">.</span><span class="nx">refs</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">bar</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">bar</span><span class="p">.</span><span class="nx">refs</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nx">render</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Input</span>
+</span><span class='line'>          <span class="nx">ref</span><span class="o">=</span><span class="p">{</span><span class="nx">component</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">foo</span> <span class="o">=</span> <span class="nx">component</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">update</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)}</span> <span class="o">/&gt;</span> <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">foo</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">hr</span><span class="o">/&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Input</span>
+</span><span class='line'>          <span class="nx">ref</span><span class="o">=</span><span class="p">{</span><span class="nx">component</span> <span class="o">=&gt;</span> <span class="k">this</span><span class="p">.</span><span class="nx">bar</span> <span class="o">=</span> <span class="nx">component</span><span class="p">}</span>
+</span><span class='line'>          <span class="nx">update</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">update</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="k">this</span><span class="p">)}</span> <span class="o">/&gt;</span> <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">bar</span><span class="p">}</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">Input</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">render</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">input</span>
+</span><span class='line'>        <span class="nx">ref</span><span class="o">=</span><span class="s2">&quot;input&quot;</span>
+</span><span class='line'>        <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span>
+</span><span class='line'>        <span class="nx">onChange</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">update</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">export</span> <span class="k">default</span> <span class="nx">App</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Componentマウントのライフサイクル</h2>
+
+<p>ReactはComponentをDOMにマウントしてからアンマウントするまでの段階で、下記のフックメソッドを呼び出します。</p>
+
+<ol>
+<li>componentWillMount</li>
+<li>componentDidMount</li>
+<li>(render)</li>
+<li>componentWillUnmount</li>
+</ol>
+
+
+<p>ReactDOM#renderメソッドを使ってComponentをマウントします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">App</span> <span class="o">/&gt;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="err">‘</span><span class="nx">target</span><span class="err">’</span><span class="p">);</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>unmountComponentAtNodeメソッドでアンマウントできます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">unmountComponentAtNode</span><span class="p">(</span>
+</span><span class='line'>  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="err">‘</span><span class="nx">target</span><span class="err">’</span><span class="p">);</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>マウント、アンマウントのサンプルコードです。</p>
+
+<p data-height="900" data-theme-id="0" data-slug-hash="KNbwBg" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Mount lifecycle" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/KNbwBg/">React - Mount lifecycle</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<h3>Component Updateのライフサイクル</h3>
+
+<p>ComponentのPropsが変更されるなど更新が発生した場合も、Componentマウントと同様にフックメソッドが用意されています。 <code>componentWillReceiveProps</code> はそれぞれ引数に <code>nextProps</code>, <code>nextState</code> を、 <code>componentDidUpdate</code> は引数に <code>prevProps</code> と <code>prevState</code> を取ります。</p>
+
+<ol>
+<li>componentWillReceiveProps</li>
+<li>(render)</li>
+<li>componentDidUpdate</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">update</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">ReactDOM</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span>
+</span><span class='line'>    <span class="o">&lt;</span><span class="nx">App</span> <span class="nx">val</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">}</span> <span class="o">/&gt;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="err">‘</span><span class="nx">app</span><span class="err">’</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">componentWillReceiveProps</span><span class="p">(</span><span class="nx">nextProps</span><span class="p">,</span> <span class="nx">nextState</span><span class="p">)</span> <span class="p">{</span><span class="err">…</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">componentDidUpdate</span><span class="p">(</span><span class="nx">prevProps</span><span class="p">,</span> <span class="nx">prevState</span><span class="p">)</span> <span class="p">{</span><span class="err">…</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>リストComponentの動的作成</h2>
+
+<p>配列の要素をComponentとして描画し、一覧ページを作成する方法です。
+次のサンプルでは <code>componentWillMount</code> でWebAPIからデータを取得し、Appコンポーネントの state にリストデータを格納しています。<code>render</code> メソッドでは Array#map メソッドを使って配列の一つ一つの要素に対してPersonコンポーネントに変換させています。</p>
+
+<p data-height="800" data-theme-id="0" data-slug-hash="jVXOxR" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Listing Components" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/jVXOxR/">React - Listing Components</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<h2>Higher Order Components (高階Component)</h2>
+
+<p>高階関数の様に、Componentを引数または戻り値とする関数を使うことで、Propsに値を注入したり、別のComponentで実装された振る舞いなどを合成することが可能です。</p>
+
+<p>React Reduxの <code>connect()</code> 関数も <code>mapStateToProps</code> と <code>mapDispatchToProps</code> の結果をPropsに注入した、新しいComponentを返します。React Routerの <code>withRouter()</code> もURLパラメータを props.params に注入した、新しいComponentを返します。</p>
+
+<p>次のサンプルコードでは、<code>HOC</code>という高階コンポーネント関数を定義しています。<code>update()</code>メソッドが呼ばれると state.count をインクリメントし、<code>render()</code> メソッドで自身の props に count をセットしています。</p>
+
+<p>さらに、Button・Labelと二つのComponentを作成し、<code>HOC()</code> を適用します。それぞれ <code>Button#onClick</code>、<code>Label#onMouseMove</code> イベントで<code>HOC</code>の <code>update()</code>を呼び出しています。いずれも <code>update()</code> は実装していないも関わらず、それぞれのComponentで props.count が加算されていることが確認できます。</p>
+
+<p data-height="1170" data-theme-id="0" data-slug-hash="ObdKyZ" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Higher Order Component" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/ObdKyZ/">React - Higher Order Component</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<h2>まとめ</h2>
+
+<p>Reactで定石と思われる実装方法について簡単に纏めました。
+仕事で担当しているアプリケーションでReact/Reduxを使うことが決まっているので、
+ノウハウが溜まってきたら業務の合間を見て記事にしてみたいと思ってます。</p>
+
+<p>次は、引き続きReact Routerについて調べて見ます。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2017-01-23T10:05:19+09:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2017</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>近頃のフロントエンド技術の過熱ぶりに触発されて、サーバーサイドの裏方から日の当たる表舞台に興味が湧き始めました。egghead.ioの<a href="https://egghead.io/courses/react-fundamentals">Start Using React to Build Web Applications</a>を受講したので忘れないよう覚書を残しておきます。</p>
+
+<h2>1. Reactとは</h2>
+
+<p><img src="/images/20170123/react_logo.png" height="100" width="400" alt="Capture" /></p>
+
+<p>ReactはFacebookが開発したユーザーインターフェイスを構築するためのJavaScriptライブラリです。主に次の三つの特徴を持ちます。</p>
 
 <ul>
-<li><a href="http://blog.supermomonga.com/articles/rails/rails-version-railties.html">Railsのバージョンがなんかおかしい時はrailtiesをチェック</a></li>
-<li><a href="http://blog.ojimac.com/2012/04/25/%E6%9C%80%E8%BF%91%E3%81%AEruby%E3%80%81rails%E3%81%AE%E7%92%B0%E5%A2%83%E6%A7%8B%E7%AF%89%E3%81%8B%E3%82%89%E3%80%81heroku%E3%81%B8%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%BE%E3%81%A7%E3%81%AE/">最近のRuby、Railsの環境構築から、herokuへデプロイまでのやり方を教えてもらいました</a></li>
+<li>宣言的</li>
+<li>Componentベース</li>
+<li>一度学べばどこでも書ける (Web/iOS/Android/Node.js SSR)</li>
+</ul>
+
+
+<h2>2. プロジェクト作成</h2>
+
+<p>一般的に、Reactアプリケーションのプロジェクト作成は、npmモジュールの依存解決やwebpackの設定が必要で、お世辞にも敷居が低いとは言えませんでした。</p>
+
+<p>現在では、Facebookが<a href="https://github.com/facebookincubator/create-react-app">react-create-app</a>というBoilerplateを提供していますので、それを利用するのが一番簡単です。また、単純なコードを動かすだけであれば<a href="http://codepen.io">CodePen</a>でインタラクティブに動作確認ができます。</p>
+
+<p>react-create-appを使ったプロジェクト作成手順は次の通りです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>npm install -g react-create-app
+</span><span class='line'><span class="nv">$ </span>react-create-app myapp
+</span><span class='line'><span class="nv">$ </span><span class="nb">cd </span>my app
+</span><span class='line'><span class="nv">$ </span>npm start
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3. JSX</h2>
+
+<p>JSXは、ReactでUIを記述するためのJavaScript拡張構文で、コンパイラによって次の様な関数に変換されます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Hello</span> <span class="nx">World</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">=&gt;</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="err">‘</span><span class="nx">h1</span><span class="err">’</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="err">‘</span><span class="nx">Hello</span> <span class="nx">World</span><span class="err">’</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4. Component</h2>
+
+<p>Componentは概念的にJavaScript関数で、入力としてPropsを受け取り、レンダリングするための何かしらの要素を戻り値として返します。</p>
+
+<p data-height="265" data-theme-id="0" data-slug-hash="QGzwQy" data-default-tab="js,result" data-user="satoshiyamamoto" data-embed-version="2" data-pen-title="React - Hello World" class="codepen">See the Pen <a href="http://codepen.io/satoshiyamamoto/pen/QGzwQy/">React - Hello World</a> by Satoshi Yamamoto (<a href="http://codepen.io/satoshiyamamoto">@satoshiyamamoto</a>) on <a href="http://codepen.io">CodePen</a>.</p>
+
+
+<script async src="https://production-assets.codepen.io/assets/embed/ei.js"></script>
+
+
+<p>ES2015のClass構文を使う場合は <code>React.Component</code> クラスを継承します。Atomエディタのreactプラグインを使えば <code>rcd6</code> のスニペットで簡単にクラス定義の雛形が挿入できます。</p>
+
+<h3>4.1 Props</h3>
+
+<p>前述のようにPropsは、外部からComponentに渡される不変なパラメータです。JSXではHTML属性に似た構文で値を渡します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="o">&lt;</span><span class="nx">App</span> <span class="nx">text</span><span class="o">=</span><span class="err">“</span><span class="nx">Hello</span> <span class="nx">from</span> <span class="nx">the</span> <span class="nx">Props</span><span class="err">”</span> <span class="o">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ComponentでPropsを参照する方法です。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// ES5</span>
+</span><span class='line'><span class="kr">const</span> <span class="nx">App</span> <span class="o">=</span> <span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">props</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// ES2015</span>
+</span><span class='line'><span class="kr">class</span> <span class="nx">App</span> <span class="kr">extends</span> <span class="nx">React</span><span class="p">.</span><span class="nx">Component</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span><span class='line'>    <span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Hello</span> <span class="nx">from</span> <span class="nx">the</span> <span class="nx">Props</span><span class="o">&lt;</span><span class="err">/h1&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>4.1.1 バリデーション</h4>
+
+<p>Propsの型と値の有無をチェックできます。バリデーションで不備を検知すると実行時エラーが発生します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">propTypes</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">text</span><span class="o">:</span> <span class="nx">React</span><span class="p">.</span><span class="nx">PropTypes</span><span class="p">.</span><span class="nx">string</span>
+</span><span class='line'>  <span class="nx">count</span><span class="o">:</span> <span class="nx">React</span><span class="p">.</span><span class="nx">PropTypes</span><span class="p">.</span><span class="nx">number</span><span class="p">.</span><span class="nx">isRequired</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>スニペット: <code>pt6</code></p>
+
+<h4>4.1.2 デフォルト値</h4>
+
+<p>Componentの呼び出しでPropsが省略された場合、ここで設定したデフォルト値が使われます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">App</span><span class="p">.</span><span class="nx">defaultProps</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">text</span><span class="o">:</span> <span class="s1">&#39;Please input text...&#39;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nx">count</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>スニペット: <code>dp</code></p>
+
+<h3>4.2 State</h3>
+
+<p>Componentの状態やユーザー入力など、可変で動的な値を管理します。Stateの詳細については次の記事で紹介する予定です。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">constructor</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// initialize</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">state</span> <span class="o">=</span> <span class="p">{</span> <span class="err">…</span> <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">onChangeInput</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// update</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">e</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">value</span> <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>スニペット: <code>state</code></p>
+
+<h2>まとめ</h2>
+
+<p>Reactでアプリケーションを開発するにあたり、基本的なプロジェクトの作成方法とComponentの実装を紹介しました。Reactを使えば、ステートレスでメンテナンス性の高い再利用可能なViewComponentを作成できます。次は、実際にReactを使ったアプリケーションの設計や実装方法について記していきます。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-01-30T13:07:05+09:00" pubdate data-updated="true">Jan 30<span>th</span>, 2016</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　今更感が拭えませんが、乗りかかった船なのであと数回続けいきます。</p>
+
+<h2>はじめに</h2>
+
+<p>　Chefとは、Chef社(旧Opscode社)が開発したプロピジョニングツールです。
+レシピと呼ばれるRubyのDSLを使ってサーバのあるべき状態をコードに定義することで、サーバの構築作業を自動化します。テキストファイルの構築手順書と比べた場合、次の様なメリットがあります。</p>
+
+<ul>
+<li>構築作業の自動化</li>
+<li>オペレーションミスの排除</li>
+<li>サーバーの抽象化</li>
+<li>コミュニティレシピの利用</li>
+</ul>
+
+
+<p>　世界中の企業で導入されておりプロビジョニングツールとしてはデファクトスタンダードの実績を誇ります。
+サーバーをChefの管理下に置くことで、たった1台のマシンから巨大なクラスタに至るまで、サーバーの構築、オペレーション作業を集中管理できるようになります。
+Red Hat社が類似ツールのAnsibleを傘下に入れたことからも重要さを伺えます。</p>
+
+<h2>Chef ServerとChef Zero</h2>
+
+<p>　Chefには、大きく分けてChef ServerとChef Zeroという二つの形態があります。</p>
+
+<p>　Chef Serverはエンタープライズ向けで、サーバーの構成情報は中央のChef Serverで管理されます。ChefではこのようなChef Serverで管理されたノードをClientと呼びます。Chefの管理下にある各Clientのノードは、中央のChef Serverから自身の構成情報を取得し、その状態になるようパッケージのインストールや設定ファイルの更新を行います。
+Chef Zeroは、小規模向けのツールでLocal Modeと呼ばれる方式を取ります。その名の通りローカルのCookbookファイルなどに従いレシピを自身に適用します。</p>
+
+<p>　今回はChef Zeroの適用がメインなので、Chef ZeroのLocal Modeを使いVagrantのゲストOS、AWSのEC2の二つの異なる環境で同じレシピを適用します。レシピの記述には、Chef社で提供されているchef-dk(Chef Development Kit)を利用します。</p>
+
+<h2>実践</h2>
+
+<p>  では、実際にchef-dkを使ってローカルの仮想マシンにWordpressを構築してみます。また、Chefの基本的な説明は公式サイトや専門書に委ねて、VagrantとAWSのEC2でChefを適用させることに焦点をあてます。</p>
+
+<h2>環境</h2>
+
+<p>  環境は次の通りです。</p>
+
+<ul>
+<li>Chef Development Kit: 0.10</li>
+<li>ホスト: Mac OS X 10.11.1</li>
+<li>ゲスト: CentOS 7.1</li>
+<li>VirtualBox: 5.1.0</li>
+<li>Vagrant: 1.8.1</li>
+<li>AWS EC2: Amazon Linux AMI release 2015.09</li>
+</ul>
+
+
+<h2>Chef Development Kitのインストール</h2>
+
+<h3>OS X</h3>
+
+<p>Homebrew Caskでインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ brew cask install chefdk
+</span><span class='line'>$ chef -v
+</span><span class='line'>Chef Development Kit Version: 0.10.0
+</span><span class='line'>chef-client version: 12.5.1
+</span><span class='line'>berks version: 4.0.1
+</span><span class='line'>kitchen version: 1.4.2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>chefコマンドで、それぞれの雛形を生成するには generator コマンド使っていきます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ chef generate
+</span><span class='line'>Usage: chef generate GENERATOR [options]
+</span><span class='line'>
+</span><span class='line'>Available generators:
+</span><span class='line'>  app         Generate an application repo
+</span><span class='line'>  cookbook    Generate a single cookbook
+</span><span class='line'>  recipe      Generate a new recipe
+</span><span class='line'>  attribute   Generate an attributes file
+</span><span class='line'>  template    Generate a file template
+</span><span class='line'>  file        Generate a cookbook file
+</span><span class='line'>  lwrp        Generate a lightweight resource/provider
+</span><span class='line'>  repo        Generate a Chef code repository
+</span><span class='line'>  policyfile  Generate a Policyfile for use with the install/push commands
+</span><span class='line'>  generator   Copy ChefDK's generator cookbook so you can customize it</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Chefレポジトリ</h2>
+
+<p>　リポジトリとは、Chefが保持するデータの集合で、Cookbookなどのオブジェクトはリポジトリに格納されます。また、リポジトリは規模によって二つのタイプにわけられます。</p>
+
+<p>　一つ目はchef repoです。サーバー台数が数台以上の環境に適しており、Chef管理下のNodeや、Roleと呼ばれるノードの役割、ProduntionやDevelopmentなどのサーバー環境に応じてリソースの属性を分けて管理するためのEnvironmentなどが含まれます。一般的に多く利用されるのはこの構成です。</p>
+
+<p>　もう一つは、chef applicationです。その名の通り単一のアプリケーションを動作させるための非常にシンプル構成となっています。Vagrantfileも一緒に生成されるので開発環境の構築やテストに向いてます。</p>
+
+<p>リポジトリの作成は次のコマンドで行います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ chef generate [repo|app] NAME</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cookbookの作成</h2>
+
+<p>　Cookbookもchefコマンドで作成します。generate cookbook コマンドはカレントディレクトリにcookbookを生成するので、あらかじめchef-repo/cookbooksディレクトリに移動しておくとよいでしょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd chef-repo/cookbooks
+</span><span class='line'>$ chef generate cookbook nginx</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Cookbookの開発</h2>
+
+<p>　レシピやテンプレートなど、cookbook内のリソースを作成するには generator コマンドにcookbook のパスを指定します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ cd chef-repo
+</span><span class='line'>$ chef generate recipe cookbooks/nginx ssl
+</span><span class='line'>$ chef generate template cookbooks/nginx centos/default.conf.erb</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>レシピの適用</h2>
+
+<h3>Vagrant</h3>
+
+<p>　VagrantのゲストOSにレシピを適用します。Cookbooksは、<a href="https://github.com/satoshiyamamoto/cookbooks">Github</a>に置いてあります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant box add bento/centos-7.1
+</span><span class='line'>==&gt; box: Loading metadata for box 'bento/centos-7.1'
+</span><span class='line'>    box: URL: https://atlas.hashicorp.com/bento/centos-7.1
+</span><span class='line'>This box can work with multiple providers! The providers that it
+</span><span class='line'>can work with are listed below. Please review the list and choose
+</span><span class='line'>the provider you will be working with.
+</span><span class='line'>
+</span><span class='line'>1) parallels
+</span><span class='line'>2) virtualbox
+</span><span class='line'>3) vmware_desktop
+</span><span class='line'>
+</span><span class='line'>Enter your choice: 2
+</span><span class='line'>    :</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Cookbooksを取得します。Vagrant 1.8からはchef_zero provisioner の実行にnodesディレクトリの指定が必要になってます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/satoshiyamamoto/cookbooks.git
+</span><span class='line'>$ mkdir nodes
+</span><span class='line'>$ vagrant init bento/centos-7.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最後にVagrantfileを編集してChef Zeroの設定を追加します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>config.vm.provision "chef_zero" do |chef|
+</span><span class='line'>  chef.cookbooks_path = "cookbooks"
+</span><span class='line'>  chef.nodes_path = "nodes"
+</span><span class='line'>  chef.add_recipe "wordpress"
+</span><span class='line'>end</span></code></pre></td></tr></table></div></figure>
+
+
+<p>後は、<code>vagrant up</code> でChefのレシピが適用され、Wordpressの管理画面が表示されているのが確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vagrant up
+</span><span class='line'>    :
+</span><span class='line'>==&gt; default: Running provisioner: chef_zero...
+</span><span class='line'>    default: Installing Chef (latest)...
+</span><span class='line'>==&gt; default: Generating chef JSON and uploading...
+</span><span class='line'>==&gt; default: Running chef-client (local-mode)...
+</span><span class='line'>    :
+</span><span class='line'>==&gt; default: Chef Client finished, 28/30 resources updated in 11 minutes 37 seconds</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Amazon EC2</h3>
+
+<p>　次は、同じレシピをAWSのEC2に適用します。Local Modeは、Sudo権限のみで秘密鍵での認証は必要ありません。CurlコマンドでChefのインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ curl -L https://www.chef.io/chef/install.sh | sudo bash</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　前回、作ったCookbookを利用します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ git clone https://github.com/satoshiyamamoto/cookbooks.git</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　Chefの実行は、サーバーを構築するという性質上root権限が必要です。ここでは <code>-z</code> でLocal Modeと、 <code>-r</code> で Run-listsを指定しています。 <code>-r</code> オプションはカンマ区切りで複数指定できます。その他、<code>-E</code> でEnvironment、<code>-c</code> で <code>client.rb</code> などの設定ファイルを指定することも可能です。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo chef-client -z -r wordpress</span></code></pre></td></tr></table></div></figure>
+
+
+<p>　これで、Vagrantと同じWordPress環境が構築できました。もし気が向いたらChef Serverについても調べてみます。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-12-18T10:49:04+09:00" pubdate data-updated="true">Dec 18<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Vagrantは、VirtualBoxなどの仮想化ソフトウェアのラッパーです。フリーで公開されている様々なゲストOSのイメージを利用でき、煩わしいインストーラに時間を取られることなく、素早く簡単に開発環境を構築できます。</p>
+
+<p>まずは、Vagrantのインストールから始め、Guest OSの基本的な設定と、さらには簡単なプロビジョニングを実行するところまでを記していきます。(VirtualBoxは既にインストールされているものとします)</p>
+
+<h2>動作環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>Vagrant 1.7.2</li>
+<li>VirtualBox 4.3.20</li>
+<li>Opscode Bento</li>
+</ul>
+
+
+<h2>Vagrantのインストール</h2>
+
+<p><a href="https://github.com/caskroom/homebrew-cask">Homebrew-cask</a>を使ってコマンドラインからVagrantのdmgパッケージを取得します。まず、先に<code>Homebrew-cask</code>をインストールします。<code>brew</code>コマンドは次のとおりです。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install caskroom/cask/brew-cask
+</span><span class='line'><span class="o">==</span>&gt; Installing brew-cask from caskroom/homebrew-cask
+</span><span class='line'><span class="o">==</span>&gt; Cloning https://github.com/caskroom/homebrew-cask.git
+</span><span class='line'>Updating /Library/Caches/Homebrew/brew-cask--git
+</span><span class='line'><span class="o">==</span>&gt; Checking out tag v0.53.3
+</span><span class='line'>🍺  /usr/local/Cellar/brew-cask/0.53.3: 2421 files, 9.5M, built in 75 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>続いて<code>vagrant</code>をインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>9<span class="nv">$ </span>brew cask install <span class="nv">vagrant</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2.dmg
+</span><span class='line'>Already downloaded: /Library/Caches/Homebrew/vagrant-1.7.2.dmg
+</span><span class='line'><span class="o">==</span>&gt; Running installer <span class="k">for </span>vagrant; your password may be necessary.
+</span><span class='line'><span class="o">==</span>&gt; Package installers may write to any location; options such as --appdir are ignored.
+</span><span class='line'><span class="o">==</span>&gt; installer: Package name is <span class="nv">Vagrant</span>
+</span><span class='line'><span class="o">==</span>&gt; installer: Upgrading at base path /
+</span><span class='line'><span class="o">==</span>&gt; installer: The upgrade was successful.
+</span><span class='line'>🍺  vagrant staged at <span class="s1">&#39;/opt/homebrew-cask/Caskroom/vagrant/1.7.2&#39;</span> <span class="o">(</span>6 files, 79M<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>インストールが完了すると<code>vagrant</code>コマンド本体と実行に必要なモジュールが一緒にインストールされます。<code>vagrant</code>コマンドは以前RubyGemsで配布されていたようですが、依存関係の問題を解消するため、実行時に同梱されたRubyモジュールを使用します。</p>
+
+<h2>ゲストOSの管理</h2>
+
+<p>Vagrantでは、ゲストOSのことをBoxと呼びます。VagrantのBoxはフリーで公開されているものも多く目的によって適宜選ぶと良いかと思います。</p>
+
+<ul>
+<li>Bento (Opscode): <a href="https://github.com/opscode/bento">https://github.com/opscode/bento</a></li>
+<li>Vagrantbox.es: <a href="http://www.vagrantbox.es">http://www.vagrantbox.es</a></li>
+</ul>
+
+
+<p>boxはvagrantのサブコマンドとなっていて下記の書式で利用します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box
+</span><span class='line'>Usage: vagrant box &lt;subcommand&gt; <span class="o">[</span>&lt;args&gt;<span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>Available subcommands:
+</span><span class='line'>     add
+</span><span class='line'>     list
+</span><span class='line'>     outdated
+</span><span class='line'>     remove
+</span><span class='line'>     repackage
+</span><span class='line'>     update
+</span><span class='line'>
+</span><span class='line'>For <span class="nb">help </span>on any individual subcommand run <span class="sb">`</span>vagrant box &lt;subcommand&gt; -h<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>新たにBoxを追加するには<code>vagrant box add</code>の後にBox名、イメージのURLを指定します。例えばOpscodeのCentOS 7.0を追加するには次のようにします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box add opscode-centos-7.0 http://opscode-vm-bento.s3.amazonaws.com/vagrant/virtualbox/opscode_centos-7.0_chef-provisionerless.box
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>vagrant box list</code>コマンドでBoxの一覧を確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant box list
+</span><span class='line'>opscode-centos-6.6   <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span><span class='line'>opscode-centos-7.0   <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span><span class='line'>opscode-ubuntu-14.04 <span class="o">(</span>virtualbox, 0<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pluginのインストール</h2>
+
+<p>Pluginを利用すればVagrantの機能を大きく拡張できます。Pluginもvagrantのサブコマンドになっており次の書式で呼び出せます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant plugin -h
+</span><span class='line'>Usage: vagrant plugin &lt;<span class="nb">command</span>&gt; <span class="o">[</span>&lt;args&gt;<span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'>Available subcommands:
+</span><span class='line'>     install
+</span><span class='line'>     license
+</span><span class='line'>     list
+</span><span class='line'>     uninstall
+</span><span class='line'>     update
+</span><span class='line'>
+</span><span class='line'>For <span class="nb">help </span>on any individual <span class="nb">command </span>run <span class="sb">`</span>vagrant plugin COMMAND -h<span class="sb">`</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回は仮想マシンの状態をロールバック可能にする必須の<code>sahara</code>プラグインをインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant plugin install sahara
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>基本設定</h2>
+
+<h3>仮想マシンの初期化</h3>
+
+<p>仮想マシンを初期化するには<code>vagrant init &lt;box name&gt;</code>コマンドを実行します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant init opscode-centos-7.0
+</span><span class='line'>A <span class="sb">`</span>Vagrantfile<span class="sb">`</span> has been placed in this directory. You are now
+</span><span class='line'>ready to <span class="sb">`</span>vagrant up<span class="sb">`</span> your first virtual environment! Please <span class="nb">read</span>
+</span><span class='line'>the comments in the Vagrantfile as well as documentation on
+</span><span class='line'><span class="sb">`</span>vagrantup.com<span class="sb">`</span> <span class="k">for </span>more information on using Vagrant.
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> <code>init</code>コマンドを実行するとカレントディレクトリに<code>Vagrantfile</code>が作成されます。</p>
+
+<p> <code>Vagrantfile</code>は言わば仮想マシンの設定ファイルです。Vagrantは仮想マシンを立ち上げる際に、この<code>Vagrantfile</code>の内容に従ってマシンを構築します。</p>
+
+<h3>ネットワークの設定</h3>
+
+<p>仮想マシンにNAT、またはブリッジを使って接続したい場合、<code>Vagrantfile</code>を編集してネットワークの設定を有効にします。</p>
+
+<p>NATでホストからのみアクセスさせるには、下記のように<code>private_network</code>を有効にします。これでホストOSから仮想マシンには<code>192.168.33.10</code>でアクセスできるようになります。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.10&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ブリッジ接続でLANに参加させるには、<code>public_network</code>の設定を有効にします。デフォルトでDHCP接続、固定IPを割り当てる場合は、<code>ip: "&lt;ipv4&gt;"</code>を指定します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># dhcp</span>
+</span><span class='line'>config.vm.network <span class="s2">&quot;public_network&quot;</span>
+</span><span class='line'><span class="c"># static</span>
+</span><span class='line'>config.vm.network <span class="s2">&quot;public_network&quot;</span>, ip: <span class="s2">&quot;192.168.0.17&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ホスト名の設定</h3>
+
+<p>ホスト名は、<code>Vagrantfile</code>で次のように指定します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.hostname <span class="o">=</span> <span class="s2">&quot;www.example.com&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>仮想マシンの起動</h3>
+
+<p>仮想マシンを起動するには<code>vagrant up</code>コマンドを呼ぶだけです。仮想マシンの初回起動時に限り、後述する<code>provision</code>がタスクとして実行されます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant up
+</span><span class='line'>Bringing machine <span class="s1">&#39;default&#39;</span> up with <span class="s1">&#39;virtualbox&#39;</span> provider...
+</span><span class='line'><span class="o">==</span>&gt; default: Importing base box <span class="s1">&#39;opscode-centos-7.0&#39;</span>...
+</span><span class='line'><span class="o">==</span>&gt; default: Matching MAC address <span class="k">for </span>NAT networking...
+</span><span class='line'><span class="o">==</span>&gt; default: Setting the name of the VM: fuelphp_default_1423639951154_30886
+</span><span class='line'>    :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>プロンプトが戻った後に、<code>vagrant status</code>コマンドを実行すると<code>running</code>になっているのが確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant status
+</span><span class='line'>Current machine states:
+</span><span class='line'>
+</span><span class='line'>default                   running <span class="o">(</span>virtualbox<span class="o">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>SSHによるログイン</h3>
+
+<p>仮想マシンには、<code>vagrant ssh</code>コマンドでログインできます。また、仮想マシンのSSHポートはホストの<code>2222</code>ポートにマッピングされているので、通常の<code>ssh</code>コマンドでもログインできます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant ssh
+</span><span class='line'>    or
+</span><span class='line'><span class="nv">$ </span>ssh -p 2222 vagrant@localhost <span class="c"># password: vagrant</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>高度な設定</h2>
+
+<p>Vagrantでは、<code>provision</code>コマンドを使って<code>Vagrantfile</code>に記載されたShellスクリプトやChefのレシピを実行することができます。例えば、Shellスクリプトでカーネルパラメータの設定を変更したり、<code>Chef</code>で構成管理を行うことができます。</p>
+
+<h3>Shellによる簡単なプロビジョニング</h3>
+
+<p>Shellスクリプトで<code>yum fastestmirror</code>プラグインを実行する例です。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.provision <span class="s2">&quot;shell&quot;</span>, inline: <span class="s">&lt;&lt;-SHELL</span>
+</span><span class='line'><span class="s">   sudo yum clean all</span>
+</span><span class='line'><span class="s">SHELL</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> <code>vagrant provision</code>コマンドで実行できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant <span class="nv">provision</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Running provisioner: shell...
+</span><span class='line'>    default: Running: inline <span class="nv">script</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Loaded plugins: fastestmirror
+</span><span class='line'>     :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Chef Zeroによるプロビジョニング</h3>
+
+<p>ChefとローカルモードのZeroについては別エントリーで取り上げるとして、今回は簡単に<code>provision</code>でChef Zeroを実行する例を述べます。DSLの詳細なオプションは、Vagrantの<a href="https://docs.vagrantup.com/v2/provisioning/chef_zero.html">ウェブサイト</a>で確認できます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.provision <span class="s2">&quot;chef_zero&quot;</span> <span class="k">do</span> |chef|
+</span><span class='line'>  chef.cookbooks_path <span class="o">=</span> <span class="s2">&quot;berks-cookbooks&quot;</span>
+</span><span class='line'>  chef.run_list <span class="o">=</span> <span class="s2">&quot;recipe[roles::node.erver]&quot;</span>
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>先ほどと同様に<code>vagrant provision</code>コマンドで実行します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vagrant <span class="nv">provision</span>
+</span><span class='line'><span class="o">==</span>&gt; default: Running provisioner: chef_zero...
+</span><span class='line'><span class="o">==</span>&gt; default: Detected Chef <span class="o">(</span>latest<span class="o">)</span> is already installed
+</span><span class='line'>Generating chef JSON and uploading...
+</span><span class='line'><span class="o">==</span>&gt; default: Running chef-zero...
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>複数VMを立ち上げる</h3>
+
+<p>VagrantでゲストVMを複数立ち上げるには<code>config.vm.define</code>で定義します。VMの起動はシーケンシャルに実行されるため低スペックマシンの場合、起動が終わるまで多少時間掛かります。タイムアウトが発生する場合は、<code>config.vm.boot_timeout</code>の秒数をデフォルトの300秒より長くするとよいでしょう。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>config.vm.define <span class="s2">&quot;node01&quot;</span> <span class="k">do</span> |node|
+</span><span class='line'>  node.vm.hostname <span class="o">=</span> <span class="s2">&quot;node01.example.com&quot;</span>
+</span><span class='line'>  node.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.10&quot;</span>
+</span><span class='line'>end
+</span><span class='line'>
+</span><span class='line'>config.vm.define <span class="s2">&quot;node02&quot;</span> <span class="k">do</span> |node|
+</span><span class='line'>  node.vm.hostname <span class="o">=</span> <span class="s2">&quot;node02.example.com&quot;</span>
+</span><span class='line'>  node.vm.network <span class="s2">&quot;private_network&quot;</span>, ip: <span class="s2">&quot;192.168.33.11&quot;</span>
+</span><span class='line'>end
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>次はChef ZeroとBerkshelfを使ってサーバ構築の自動化に挑戦したいと思います。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://docs.vagrantup.com/v2/vagrantfile/machine_settings.html">config.vm &ndash; Vagrantfile &ndash; Vagrant Documentation</a></li>
+<li><a href="http://qiita.com/sho7650/items/cf5a586713f0aec86dc0">Vagrant で複数のVM を立ち上げて、お互いに通信できるようにするには &ndash; Qiita</a></li>
 </ul>
 
 </div>
@@ -188,7 +1310,7 @@ separator: "|"
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2013/11/14/install-ruby-2-dot-0-on-mac/">Mac OS XにRuby 2.0をインストールする</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a></h1>
     
     
       <p class="meta">
@@ -204,99 +1326,1122 @@ separator: "|"
   
 
 
-<time datetime="2013-11-14T21:08:43+09:00" pubdate data-updated="true">Nov 14<span>th</span>, 2013</time>
+<time datetime="2014-12-01T14:49:00+09:00" pubdate data-updated="true">Dec 1<span>st</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>HomebrewでRuby 2.0をインストールします。端末に異なるバージョンのRubyをインストールするには、別途、rbenv、RVMが必要です。（Homebrew単体でもできるようですね！homebrewでMacに複数バージョンのrubyをインストールする）</p>
+  <div class="entry-content"><p>しばらく仕事が忙しかったせいかブログの更新が滞ってました。なんと、実に5ヶ月ぶりの投稿です。</p>
 
-<p>brew info ruby のメッセージを参考に、あらかじめ依存パッケージをインストールしておきます。</p>
+<p>その期間サボっていた訳ではなく、仕事の開発スタイルがJIRAとGithubに移行したり、ミドルウェアのHBase、ZooKeeper、FlumeNGなんかを復習したり。</p>
+
+<p>一方、プライベートではChef (solo)、Vagrantなどの環境構築まわりを勉強していました。ここ最近、ようやく落ち着いてきたので、忘れないうちに一旦記事にしていこうと思ってます。</p>
+
+<h2>動作環境</h2>
 
 <ul>
-<li>libyaml</li>
-<li>openssl</li>
-<li>readline (推奨)</li>
+<li>Mac OS X 10.8.5</li>
+<li>Homebrew 0.9.5</li>
 </ul>
 
 
-<p>インストール可能なバージョンを確認</p>
+<p>まずは、Homebrewを使ってMacの定番Ruby環境(rbenv+ruby-build)を構築します。</p>
 
-<pre><code> $ brew versions ruby
- 2.0.0-p247 git checkout 33cb28e /usr/local/Library/Formula/ruby.rb  &lt;-- これをインストール
- 2.0.0-p195 git checkout dad5917 /usr/local/Library/Formula/ruby.rb
- 2.0.0-p0 git checkout 3085c40 /usr/local/Library/Formula/ruby.rb
- 1.9.3-p392 git checkout 6c26d0a /usr/local/Library/Formula/ruby.rb
-        :
+<p>はじめに、Homebrewをアップデートしておきます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">cd</span> <span class="k">$(</span>brew --previx<span class="k">)</span>
+</span><span class='line'><span class="nv">$ </span>brew update
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ruby-buildとrbenvのインストール</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install ruby-build
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/ruby-build/archive/v20141128.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; ./install.sh
+</span><span class='line'>🍺  /usr/local/Cellar/ruby-build/20141128: 139 files, 596K, built in 5 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>次に、Rubyのバージョン管理のためrbenvをインストールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install <span class="nv">rbenv</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv/archive/v0.4.0.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Caveats
+</span><span class='line'>To use Homebrew<span class="err">&#39;</span>s directories rather than ~/.rbenv add to your profile:
+</span><span class='line'>  <span class="nb">export </span><span class="nv">RBENV_ROOT</span><span class="o">=</span>/usr/local/var/rbenv
+</span><span class='line'>
+</span><span class='line'>To <span class="nb">enable </span>shims and autocompletion add to your profile:
+</span><span class='line'>  <span class="k">if </span>which rbenv &gt; /dev/null; <span class="k">then </span><span class="nb">eval</span> <span class="s2">&quot;$(rbenv init -)&quot;</span>; <span class="k">fi</span>
+</span><span class='line'><span class="o">==</span>&gt; Summary
+</span><span class='line'>🍺  /usr/local/Cellar/rbenv/0.4.0: 31 files, 152K, built in 6 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p> ユーザごとに ~/.rbenvを使い分けるので RBENV_ROOT は設定しないでおきます。後は、Summaryの案内に従ってprofileにパスを追加します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>vi ~/.bash_profile
+</span><span class='line'><span class="k">if </span>which rbenv &gt; /dev/null; <span class="k">then </span><span class="nb">eval</span> <span class="s2">&quot;$(rbenv init -)&quot;</span>; <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$PATH</span>
+</span><span class='line'><span class="nv">$HOME</span>/.rbenv/shims:
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>追加されてますね。</p>
+
+<p>rbrnv rehash の煩わしさから解放されるためにrbenv-gem-rehashを追加でイントールします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew install rbenv-gem-rehash
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv-gem-rehash/archive/v1.0.0.tar.gz
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Downloading https://github.com/sstephenson/rbenv-gem-rehash/commit/0756890cfd9c7b
+</span><span class='line'><span class="c">######################################################################## 100.0%</span>
+</span><span class='line'><span class="o">==</span>&gt; Patching
+</span><span class='line'>patching file README.md
+</span><span class='line'>Hunk <span class="c">#1 succeeded at 23 (offset -2 lines).</span>
+</span><span class='line'>patching file etc/rbenv.d/exec/~gem-rehash.bash
+</span><span class='line'>patching file gems/rbenv-gem-rehash-1.0.0/lib/rubygems_plugin.rb
+</span><span class='line'>patching file rubygems_plugin.rb
+</span><span class='line'>patching file specifications/rbenv-gem-rehash-1.0.0.gemspec
+</span><span class='line'><span class="o">==</span>&gt; Caveats
+</span><span class='line'>If the GEM_PATH environment variable is undefined, rbenv-gem-rehash must
+</span><span class='line'>first execute the gem env gempath <span class="nb">command </span>to retrieve RubyGems<span class="err">&#39;</span> default path
+</span><span class='line'>so that it can can append to the path rather than override it. This can take
+</span><span class='line'>a <span class="k">while</span>--from a few hundred milliseconds on MRI to several seconds on
+</span><span class='line'>JRuby--so the default path <span class="k">for </span>the current Ruby version is cached to the
+</span><span class='line'>filesystem the first <span class="nb">time </span>it is retrieved.
+</span><span class='line'><span class="o">==</span>&gt; Summary
+</span><span class='line'>🍺  /usr/local/Cellar/rbenv-gem-rehash/1.0.0: 7 files, 24K, built in 4 seconds
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストールバージョンの確認</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install --list
+</span><span class='line'>Available versions:
+</span><span class='line'>  1.8.6-p383
+</span><span class='line'>  1.8.6-p420
+</span><span class='line'>    :
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回は現時点での安定版 2.1.5 をインストールします。(環境によりますが結構時間かかります。)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install 2.1.5
+</span><span class='line'>Downloading ruby-2.1.5.tar.gz...
+</span><span class='line'>-&gt; http://dqw8nmjcqpjn7.cloudfront.net/4305cc6ceb094df55210d83548dcbeb5117d74eea25196a9b14fa268d354b100
+</span><span class='line'>Installing ruby-2.1.5...
+</span><span class='line'>Installed ruby-2.1.5 to /Users/a12019/.rbenv/versions/2.1.5
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span>rbenv versions
+</span><span class='line'>* system <span class="o">(</span><span class="nb">set </span>by /Users/a12019/.rbenv/version<span class="o">)</span>
+</span><span class='line'>2.1.5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>インストールできてますね。</p>
+
+<h2>デフォルトのRubyバージョンを変更</h2>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv global 2.1.5
+</span><span class='line'><span class="nv">$ </span>rbenv versions
+</span><span class='line'>system
+</span><span class='line'>* 2.1.5 <span class="o">(</span><span class="nb">set </span>by /Users/a12019/.rbenv/version<span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">$ </span>ruby -v
+</span><span class='line'>ruby 2.1.5p273 <span class="o">(</span>2014-11-13 revision 48405<span class="o">)</span> <span class="o">[</span>x86_64-darwin12.0<span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>変わりました。</p>
+
+<p>  SystemのRubyを見に行く場合は、PATHが.rbenv/shims
+  を見に行ってるか確認してみてください。PATHが正しいようなら rbenv rehash でshims を更新させます。</p>
+
+<h2>Rubyバージョンの変更</h2>
+
+<p>インストールの手順と同じようにインストール可能なバージョンを確認します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv install --list
+</span><span class='line'><span class="nv">$ </span>rbenv instal &lt;version&gt;
+</span><span class='line'><span class="nv">$ </span>rbenv global &lt;version&gt;
+</span><span class='line'><span class="nv">$ </span>ruby -v
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>バージョンが切り替わらない場合は、rbenv rehashします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv rehash
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>インストールバージョンの更新</h2>
+
+<p>Homebrewからruby-buildのバージョンをアップデートします。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>brew upgrade ruby-build
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これで ruby linstall &mdash;list の結果が更新されるはずです。</p>
+
+<h2>まとめ</h2>
+
+<p>rbenvとruby-buildを使うことで簡単にRubyのバージョンを切り替えることが出来るようになりました。rbenvはバージョンごとにgemのリポジトリを管理するので、PC本体の環境を汚さずに済みます。</p>
+
+<p>今回、Qiitaの投稿を参考にさせてもらいましたが、お陰で理解が深まりました。とは言え、公式ドキュメント読むために英語勉強せねば&hellip;</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://qiita.com/riocampos/items/f0fe7217972b312c4f3a">Ruby &ndash; rbenv を使っているなら rbenv-gem-rehash を使おう &ndash; Qiita</a></li>
+<li><a href="http://qiita.com/isaoshimizu/items/07ddd1e25996e19d45bf">rbenv, ruby-buildのインストール &ndash; Qiita</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/28/java8-time/">Java8の新機能に触れる(4) Date and Time</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-28T14:55:00+09:00" pubdate data-updated="true">Jul 28<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　Java8で新しくなった、Date and Time API (JSP-310）について調べました。新しいDate and Timeパッケージは、次の考え方を中心に設計されています。</p>
+
+<ul>
+<li>不変な値を持つクラス</li>
+<li>ドメイン駆動設計</li>
+<li>暦 (Chronology) の区別</li>
+</ul>
+
+
+<p>　既存のクラスには、スレッド・セーフではないSimpleDateFormatクラスや、直感的でないAPIなどの使い勝手に問題がありました。これを受け、Joda-Timeライブラリの作者がスペックリードとなり開発を進められたものです。</p>
+
+<h2>動作環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>JDK 1.8.0 u11</li>
+</ul>
+
+
+<h2>オブジェクトの生成</h2>
+
+<p>オブジェクトは、now または of のファクトリメソッドを使って生成します。別の型から変換するには from メソッドを使います。また、日付文字列を解析するには parse メソッドを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 現在の日付と時刻</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">timePoint</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// 値から作成</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">2014</span><span class="o">,</span> <span class="n">Month</span><span class="o">.</span><span class="na">JULY</span><span class="o">,</span> <span class="mi">28</span><span class="o">);</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">2014</span><span class="o">,</span> <span class="mi">7</span><span class="o">,</span> <span class="mi">28</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列から作成</span>
+</span><span class='line'><span class="n">LocalDate</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;2014-07-28&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// 今日の帰宅時に利用した電車</span>
+</span><span class='line'><span class="n">LocalTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">17</span><span class="o">,</span> <span class="mi">18</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列から作成</span>
+</span><span class='line'><span class="n">LocalTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">&quot;10:15:30&quot;</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>日付のフォーマット</h2>
+
+<p>日付のフォーマットは、DateTimeクラスの format メソッドを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// ISO形式は列挙型を</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">DateTimeFormatter</span><span class="o">.</span><span class="na">ISO_LOCAL_DATE_TIME</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 文字列で指定する場合</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">DateTimeFormatter</span><span class="o">.</span><span class="na">ofPattern</span><span class="o">(</span><span class="s">&quot;yyyy/MM/dd hh:mm:ss&quot;</span><span class="o">,</span> <span class="n">Locale</span><span class="o">.</span><span class="na">JAPAN</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>値の取得と変更</h2>
+
+<p>値の取得は、標準的なgetterを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// =&gt; 2014-07-28</span>
+</span><span class='line'><span class="n">LocalDate</span> <span class="n">theDate</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">toLocalDate</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; 07</span>
+</span><span class='line'><span class="n">Month</span> <span class="n">month</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">getMonth</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; 31</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">day</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">getDayOfMonth</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// =&gt; xxx</span>
+</span><span class='line'><span class="n">timePoint</span><span class="o">.</span><span class="na">getSecond</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>timeパッケージのクラスは不変クラスのため、破壊的メソッドは提供されていません。値を変更するには、with または plus メソッドを使って新しいオブジェクトを取得します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 月の10日を指定し、さらに2010年を指定</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">thePast</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">withDayOfMonth</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="na">withYear</span><span class="o">(</span><span class="mi">2010</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 値とフィールドのペア</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">yetAnother</span> <span class="o">=</span> <span class="n">thePast</span><span class="o">.</span><span class="na">plusWeeks</span><span class="o">(</span><span class="mi">3</span><span class="o">).</span><span class="na">plus</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="n">ChronoUnit</span><span class="o">.</span><span class="na">WEEKS</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>また、with メソッドは TemporalAdjusters クラスで実装された日付操作のコードブロックを受け取ることも出来ます。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">LocalDateTime</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">TemporalAdjusters</span><span class="o">.</span><span class="na">lastDayOfMonth</span><span class="o">());</span>
+</span><span class='line'><span class="n">LocalDateTime</span> <span class="n">bar</span> <span class="o">=</span> <span class="n">timePoint</span><span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="n">TemporalAdjusters</span><span class="o">.</span><span class="na">previousOrSame</span><span class="o">(</span><span class="n">DayOfWeek</span><span class="o">.</span><span class="na">WEDNESDAY</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Unixタイムスタンプ</h2>
+
+<p>timeパッケージでは、Unixのエポックタイムをラップした Instant クラスを使って表現します。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// 現在時刻</span>
+</span><span class='line'><span class="n">Instant</span><span class="o">.</span><span class="na">now</span><span class="o">();</span>
+</span><span class='line'><span class="c1">// ミリ秒から</span>
+</span><span class='line'><span class="n">Instant</span><span class="o">.</span><span class="na">ofEpochMilli</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+</span><span class='line'><span class="c1">// DateTimeクラスから</span>
+</span><span class='line'><span class="n">ZonedDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span><span class='line'><span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">toInstant</span><span class="o">(</span><span class="n">zoneOffset</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 旧java.utilクラスから</span>
+</span><span class='line'><span class="n">Calendar</span><span class="o">.</span><span class="na">getInstance</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span><span class='line'><span class="k">new</span> <span class="nf">Date</span><span class="o">().</span><span class="na">toInstant</span><span class="o">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>タイムゾーンの扱いについて</h2>
+
+<p>タイムゾーンを考慮した時差の補正には、ZoneId、ZoneOffsetクラスを使います。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// ゾーンの正式名を指定</span>
+</span><span class='line'><span class="n">ZoneId</span> <span class="n">zoneId</span> <span class="o">=</span> <span class="n">ZoneId</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;Asia/Tokyo&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// 標準時刻との時差</span>
+</span><span class='line'><span class="n">ZoneOffset</span> <span class="n">zoneOffset</span> <span class="o">=</span> <span class="n">ZoneOffset</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;+09:00&quot;</span><span class="o">);</span>
+</span><span class='line'><span class="c1">// タイムゾーンを指定してインスタンスを生成</span>
+</span><span class='line'><span class="n">ZonedDateTime</span> <span class="n">zoned</span> <span class="o">=</span> <span class="n">ZonedDateTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">timePoint</span><span class="o">,</span> <span class="n">zoneId</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>まとめ</h2>
+
+<p>纏め中&hellip;</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.oracle.com/technetwork/jp/articles/java/jf14-date-time-2125367-ja.html">Java SE 8 Date and Time</a></li>
+<li><a href="http://d.hatena.ne.jp/nowokay/20130917">Java8日付時刻APIの使いづらさと凄さ &ndash; きしだのはてな</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/02/java8-stream2/">Java8の新機能に触れる(3) Stream API おまけ編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-02T10:10:06+09:00" pubdate data-updated="true">Apr 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　今回もStream APIについて調べてみようと思います。これまで触った限りでもJava8はかなり洗練されていて、少しでも早く自分のプロジェクトに入れたくなる気持ちで一杯です。話を元に戻すと、新旧の構文でループさせた時のパフォーマンスの違いや、前回触れられなかった集合系のメソッドについて、もう少し詳しく調べてみようと思います。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>Mac OS X 10.8.5</li>
+<li>CPU 2.9GHz Intel Core i7</li>
+<li>Memory 8 GB</li>
+<li>JDK 1.8.0</li>
+</ul>
+
+
+<h2>パフォーマンス測定</h2>
+
+<p>1,000,000の要素を持つ配列をループで回し、10,000件毎にその時の要素をコンソールに出力します。時間の計算にはSpringframeworkのStopWatchユーティリティーを使っています。それぞれのコードは次のとおりです。</p>
+
+<h4>拡張for文</h4>
+
+<div><script src='https://gist.github.com/9927691.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// for-each
+watch.start(&quot;iterate tiger foreach&quot;);
+for (int i : list) {
+    printIfTenThousand(i);
+}
+watch.stop();</code></pre></noscript></div>
+
+
+<h4>Stream forEach (シーケンシャル)</h4>
+
+<div><script src='https://gist.github.com/9927696.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// sequential stream
+watch.start(&quot;iterate sequential stream&quot;);
+list.stream()
+.forEach(i -&gt; printIfTenThousand(i));
+watch.stop();</code></pre></noscript></div>
+
+
+<h4>Stream forEach (パラレル)</h4>
+
+<div><script src='https://gist.github.com/9927704.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// parallel stream
+watch.start(&quot;iterate parallel stream&quot;);
+list.parallelStream()
+.forEach(i -&gt; printIfTenThousand(i));
+watch.stop();</code></pre></noscript></div>
+
+
+<h3>結果測定</h3>
+
+<p>結果は、Tigerの拡張for文の方が早い、、、</p>
+
+<pre><code>StopWatch 'Testing Stream API': running time (millis) = 263
+-----------------------------------------
+ms     %     Task name
+-----------------------------------------
+00079  030%  iterate tiger foreach
+00098  037%  iterate sequential stream
+00086  033%  iterate parallel stream
 </code></pre>
 
-<p>2.0.0-p247を指定します。</p>
+<p>今度は、データの件数を5000万件に増やして再度測定してみます。</p>
 
-<pre><code>$ cd /usr/local
-$ git checkout 33cb28e /usr/local/Library/Formula/ruby.rb
+<pre><code>StopWatch 'Testing Stream API': running time (millis) = 994
+-----------------------------------------
+ms     %     Task name
+-----------------------------------------
+00338  034%  iterate tiger foreach
+00454  046%  iterate sequential stream
+00202  020%  iterate parallel stream
 </code></pre>
 
-<p>rdocのドキュメントも合わせてインストールします。</p>
+<p>今度は、パラレルStreamを使ったforEachが一番高速という結果になりました。コンソールのダンプを見てみても並列に処理されているのが見て取れます。</p>
 
-<pre><code>$ brew install ruby --with-doc
-==&gt; Downloading http://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.bz2
-Already downloaded: /Library/Caches/Homebrew/ruby-2.0.0-p247.tar.bz2
-==&gt; ./configure --prefix=/usr/local/Cellar/ruby/2.0.0-p247 --enable-shared --wit
-==&gt; make
-==&gt; make install
-==&gt; Caveats
-NOTE: By default, gem installed binaries will be placed into:
-  /usr/local/opt/ruby/bin
-
-You may want to add this to your PATH.
-==&gt; Summary
-🍺  /usr/local/Cellar/ruby/2.0.0-p247: 14945 files, 82M, built in 3.7 minutes
+<pre><code>28030000
+2650000
+28040000
+28050000
+2660000
+28060000
+2670000
+   :
 </code></pre>
 
-<p>環境変数を設定します。</p>
+<h2>集合系のStream API</h2>
 
-<pre><code>$ vi ~/.bash_profile
+<p>特に目新しいこともないのですが、前回紹介しきれなかった次の機能を試してみます。</p>
 
-RUBY_HOME='/usr/local/opt/ruby' #インストールディレクトリ
-RI="--format ansi" # riを256カラーで表示
-PAGER="less -R" # ページャーにlessを指定
-PATH=$RUBY_HOME/bin:$PATH 
+<ul>
+<li>max, min, sum, avr</li>
+<li>distinct</li>
+<li>IntStream</li>
+</ul>
 
-export PATH PAGER RUBY_HOME RI
-~
+
+<p>まず、AKBのメンバーの中からmax()メソッドを使って、最も名前の長いメンバーを抽出します。コードは次のとおりです。</p>
+
+<div><script src='https://gist.github.com/9965517.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// Max Example, result =&gt; サイード横田絵玲奈
+Person maxPerson = repository.findAll().stream()
+    .max((p1, p2) -&gt; p1.getName().length() - p2.getName().length())
+    .get();
+System.out.printf(&quot;most long name is %s%n&quot;, maxPerson);
+</code></pre></noscript></div>
+
+
+<p>出力される結果は次のとおりです。</p>
+
+<pre><code>most long name is Person [name=サイード横田絵玲奈, birthday=1997-04-15, gender=FEMALE, team=, captain=false]
 </code></pre>
 
-<p>インストールされたか確認</p>
+<p>本来は、大量のデータセットの中から対象の数値を検索する用途で使われるものなので、この例であればFilterを使ったほうが適切かもしれません。
+同様に、min()メソッドで年齢の一番若いメンバーを抽出します。</p>
 
-<pre><code>$ ruby -v
-ruby 2.0.0p247 (2013-06-27 revision 41674) [x86_64-darwin12.5.0]
+<div><script src='https://gist.github.com/9965565.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// Min Example, result =&gt; 岩田華怜
+Person minPerson = repository.findAll().stream()
+    .min((p1, p2) -&gt; p1.getAge() - p2.getAge())
+    .get();
+System.out.printf(&quot;most younger is %s%n&quot;, minPerson);</code></pre></noscript></div>
+
+
+<p>結果は次のとおりです。</p>
+
+<pre><code>most younger is Person [name=岩田華怜, birthday=1998-05-13, gender=FEMALE, team=, captain=false]
 </code></pre>
 
-<p>リファレンスを見る</p>
+<p>正しく抽出できています。次はIntStreamを使って、対象のリストからそれぞれ、最大値と平均を取得します。</p>
 
-<pre><code>$ ri GC --format ansi
-GC
+<div><script src='https://gist.github.com/9965530.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// Distinct and Sum Example, 
+sum = IntStream.of(new int[]{1, 2, 2, 3, 3, 3})
+    .distinct()
+    .sum();
+System.out.printf(&quot;sum = %d%n&quot;, sum);
+</code></pre></noscript></div>
 
-(from ruby core)
-------------------------------------------------------------------------------
-The GC module provides an interface to Ruby's mark and sweep garbage
-collection mechanism.
-        :
+
+<p>Distinctで重複を排除しているので、結果は次のようになります。</p>
+
+<pre><code>sum = 6
 </code></pre>
 
-<p>カラー表示されていればOKです。</p>
+<p>最後に平均を求めます。</p>
 
-<p>最後にRuby2.0対応のデバッガ、byebugをインストールします。</p>
+<div><script src='https://gist.github.com/9965559.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// Distinct and Avrage Example, 
+double avr = IntStream.of(new int[]{1, 2, 2, 3, 3, 3})
+    .distinct()
+    .average()
+    .getAsDouble();
+System.out.printf(&quot;avr = %f%n&quot;, avr);</code></pre></noscript></div>
 
-<pre><code>$ gem install byebug
-Building native extensions.  This could take a while...
-Successfully installed byebug-2.3.1
-        :
+
+<pre><code>avr = 2.000000
 </code></pre>
 
-<p>次はRailsの開発環境を整えます。</p>
+<p>正しく取れています。</p>
+
+<p>Stream APIは、表現豊かでまるでRubyでコーディングしているのでは？とおもうほどストレス無くコードを書くことが出来ました。Java 8では、Stream APIの他にもjava.util.timeパッケージの追加で日付関連のクラスが刷新されているそうです。次回は、そちらの紹介をしたいと思います。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.coreservlets.com/java-8-tutorial/">Java 8 Tutorial &mdash; Lambda Expressions, Streams, Default Methods and More</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/31/java8-stream/">Java8の新機能に触れる(2) Stream API編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-31T15:41:22+09:00" pubdate data-updated="true">Mar 31<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　Lambda式の投稿から、だいぶ時間が経ってしまいましたが、引き続きJava8の新機能について調べてみたいと思います。今回はjava.util.streamパッケージに追加されたStream APIです。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>Oracle JDK 1.8.0</li>
+<li>MacOS 10.9.2</li>
+</ul>
+
+
+<h2>Strem呼び出しと並列度</h2>
+
+<p>コレクションに対し、次のメソッドを呼び出すことでAPIの利用を開始します。<code>stream()</code>でシーケンシャル、<code>parallelStream()</code>で並列にストリームが開始されます。</p>
+
+<div><script src='https://gist.github.com/9886695.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>PersonRepository repository = new PersonRepository();
+
+// Sequential
+repository.findAll().stream();
+// Parallel 
+repository.findAll().parallelStream();</code></pre></noscript></div>
+
+
+<h2>Stream APIについて</h2>
+
+<p>Stream APIは、これまでのコレクションAPIに比べ関数型言語でよく使われている便利なメソッド群が豊富に用意されています。例えば次の様なメソッドです。</p>
+
+<ul>
+<li>filter, forEach</li>
+<li>map, reduce</li>
+<li>min, max, distinct, xMatch</li>
+<li>sorted, limit</li>
+</ul>
+
+
+<p>これらは、自分自身を返すメソッドチェーンで実装されているため、可読性に優れたコードを記述することができます。</p>
+
+<h2>FilterとforEach</h2>
+
+<p>これらのメソッドとラムダ式を使うことで、匿名関数を書くこと無くコレクションのフィルタリングが可能になります。前回に引き続き、AKBのメンバー情報からチームAだけを抽出します。</p>
+
+<div><script src='https://gist.github.com/9886798.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>repository.findAll().stream()
+    .filter(p -&gt; p.getTeam().equals(&quot;A&quot;))
+    .forEach(System.out::println);</code></pre></noscript></div>
+
+
+<p>結果は以下の通りです。</p>
+
+<pre><code>Person [name=岩佐美咲, birthday=1995-01-30, gender=FEMALE, team=A, captain=false]
+Person [name=多田愛佳, birthday=1994-12-08, gender=FEMALE, team=A, captain=false]
+Person [name=大家志津香, birthday=1991-12-28, gender=FEMALE, team=A, captain=false]
+Person [name=片山陽加, birthday=1990-05-10, gender=FEMALE, team=A, captain=false]
+    :
+</code></pre>
+
+<p>forEachで個々の要素に対して同じ処理を実行できます。この例ではフィルターで抽出した高橋みなみに対して、キャプテンフラグを設定しています。</p>
+
+<div><script src='https://gist.github.com/9886829.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>repository.findAll().stream()
+    .filter(p -&gt; p.getTeam().equals(&quot;A&quot;))
+    .filter(p -&gt; p.getName().startsWith(&quot;高橋みなみ&quot;))
+    .forEach(p -&gt; p.setCaptain(true));
+
+repository.findAll().stream()
+    .filter(p -&gt; p.isCaptain())
+    .forEach(System.out::println);
+
+// result
+repository.findAll().stream()
+    .filter(p -&gt; p.isCaptain())
+    .forEach(System.out::println);</code></pre></noscript></div>
+
+
+<p>結果は次のとおりです。</p>
+
+<pre><code>Person [name=高橋みなみ, birthday=1991-04-08, gender=FEMALE, team=A, captain=true]
+</code></pre>
+
+<p>見難いですが、正しく設定が反映されています。</p>
+
+<h2>MapとReduce</h2>
+
+<p>関数型言語に通ずる方なら馴染みの深い関数です。Rubyで初めてこれらのメソッドに触れた私はピカピカの一年生と言ったところでしょう。</p>
+
+<p>map、collect、また、reduce、injectなど、呼び方がいくつかありますが、前者はLisp、後者はSmalltalkから派生している呼び方だそうです。<a href="http://magazine.rubyist.net/?0038-MapAndCollect">Rubyist Magazine</a>のコラムに詳しく書かれていました。</p>
+
+<p>これらの関数も前述のコラムを参考に実装してみると次のようになります。</p>
+
+<div><script src='https://gist.github.com/9886899.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>// Map Example, result =&gt; 4,5,6,7
+List&lt;Integer&gt; numbers = Arrays.asList(new Integer[]{3, 4, 5, 6});
+numbers.stream()
+    .map(i -&gt; i + 1)
+    .forEach(System.out::println);
+
+// Reduce Example, result =&gt; 18
+int sum = numbers.stream()
+    .reduce((i, j) -&gt; i + j).get();
+System.out.println(sum);</code></pre></noscript></div>
+
+
+<p>Stream APIには、これらの他にもデータ集合に対するmax, min, join, xxxMatchメソッドが追加されています。<a href="http://qiita.com/amay077/items/9d2941283c4a5f61f302">Qiitaのこちらの記事</a>で詳しく解説されているので時間を見て試してみたいと思います。</p>
+
+<p>この投稿で使用したコードは<a href="https://github.com/satoshiyamamoto/java8-tutorial">Github</a>にあげています。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.coreservlets.com/java-8-tutorial/">Java 8 Tutorial &mdash; Lambda Expressions, Streams, Default Methods and More</a></li>
+<li><a href="http://d.hatena.ne.jp/nowokay/20130504">Java8のStreamを使いこなす &ndash; きしだのはてな</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/23/java8-lambda/">Java8の新機能に触れる(1) Lambda式編</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-23T16:58:08+09:00" pubdate data-updated="true">Mar 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　Java8が正式リリースされて数日が経ちました。今回のアップデートは、大きく次のような機能を含んでいます。</p>
+
+<ul>
+<li>ラムダ式</li>
+<li>型推論</li>
+<li>Stream APIの追加</li>
+<li>java.timeパッケージの追加</li>
+<li>Interfaceのデフォルトメソッドサポート</li>
+</ul>
+
+
+<p>オブジェクト原理主義、冗長と揶揄されがちなJavaですが、世の流れを受けての洗練されてきたように感じています。Java8は、今後のJavaの方向性を示す意味でもTiger以来の大きな変化では無いでしょうか。</p>
+
+<p>何はともあれ、まずはラムダ式から新しいJavaに触れてみたいと思います。</p>
+
+<h2>環境</h2>
+
+<ul>
+<li>Oracle JDK 1.8.0_20-ea</li>
+<li>MacOS 10.9.2</li>
+</ul>
+
+
+<h2>コードの例</h2>
+
+<p>人物を表す<code>Person</code>クラスがあります。このクラスに対応する<code>PersonRepository</code>は、ファインダメソッドで<code>PersonFinder</code>インターフェースを受け取り、条件に一致する人物を返します。それぞれのコードは次のとおりです。</p>
+
+<div><script src='https://gist.github.com/9720178.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>public class Person implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name;
+    private LocalDate birthday;
+    private Sex gender;
+    private String team;
+    
+    public enum Sex {
+        MALE, FEMALE;
+    }</code></pre></noscript></div>
+
+
+
+
+<div><script src='https://gist.github.com/9720307.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>@FunctionalInterface
+public interface PersonFinder {
+    
+    boolean select(Person p);
+    
+}</code></pre></noscript></div>
+
+
+
+
+<div><script src='https://gist.github.com/9720280.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>public class PersonRepository {
+
+    public List&lt;Person&gt; findBy(PersonFinder handler) {
+        List&lt;Person&gt; retval = new ArrayList&lt;&gt;();
+        for (Person p : persons) {
+            if (handler.select(p)) 
+                retval.add(p);
+        }
+        return retval;
+    }
+
+    public List&lt;Person&gt; findAll() throws IOException {
+        return persons;
+    }</code></pre></noscript></div>
+
+
+<h2>匿名クラスからラムダへ</h2>
+
+<p>テストに使うデータは、AKB48のメンバー情報です。<a href="https://github.com/moriyoshi/pyakb48">pyakb48</a>からCSVを拝借しました。チームAのメンバーだけ検索したい場合、Java7までの構文で実装すると次のようになります。</p>
+
+<div><script src='https://gist.github.com/9720387.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>      PersonFinder teamAFinder = new PersonFinder() {
+        public boolean select(Person p) {
+            return p.getTeam().contains(&quot;A&quot;);
+        }
+      };
+      
+      List&lt;Person&gt; teamA = repository.findBy(teamAFinder);
+</code></pre></noscript></div>
+
+
+<p>出力されるデータを確認してみます。</p>
+
+<pre><code>## Team A
+Person [name=岩佐美咲, birthday=1995-01-30, gender=FEMALE, team=A]
+Person [name=多田愛佳, birthday=1994-12-08, gender=FEMALE, team=A]
+Person [name=大家志津香, birthday=1991-12-28, gender=FEMALE, team=A]
+Person [name=片山陽加, birthday=1990-05-10, gender=FEMALE, team=A]
+    :
+</code></pre>
+
+<p>分かりにくいですが、正しくフィルタリングされてますね。これをラムダ式で記述すると次のようになります。</p>
+
+<div><script src='https://gist.github.com/9720443.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>List&lt;Person&gt; teamA = repository.findBy((p) -&gt; 
+    p.getTeam().contains(&quot;A&quot;)
+);
+teamA.forEach(System.out::println);
+
+</code></pre></noscript></div>
+
+
+<p>同様に、ラムダ式で20歳以下を検索するには次の様に記述します。</p>
+
+<div><script src='https://gist.github.com/9720489.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>List&lt;Person&gt; underage = repository.findBy((p) -&gt; 
+    p.getAge() &lt; 20
+);
+underage.forEach(System.out::println);</code></pre></noscript></div>
+
+
+<p>従来までのコードに比べて無駄な情報が減った為か、コードが読みやすくなったと思います。また、今回実装した内容は、同じことが新しいCollection APIで出来るようです。それについては、後ほど記事にしたいと思います。</p>
+
+<p>この投稿で利用したコードは<a href="https://github.com/satoshiyamamoto/java8-tutorial">Github</a>にあげています。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html">Lambda Expressions The Java™ Tutorials > Learning the Java Language > Classes and Objects</a></li>
+<li><a href="http://etc9.hatenablog.com/entry/2013/09/15/005516">Java 8 新機能についてのまとめ 1 &ndash; A Memorandum</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/19/no-xml-spring/">@ConfigurationでNoXMLなSpringアプリケーション設定</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-19T10:05:08+09:00" pubdate data-updated="true">Mar 19<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>　前回の続きSpringもXMLなしでapplicationContext.xmlの設定を記述します。JavaConfigのサポートから暫く立ちますが、正直あまり浸透していないようです。Spring IDEのお陰でXMLでも協力な入力補完が効くので、それに比べてあまりメリットが無い(ry</p>
+
+<p>まずは、一般的なSpringMVCとTilesアプリケーションの設定例です。</p>
+
+<div><script src='https://gist.github.com/9633609.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd&quot;&gt;
+
+  &lt;context:component-scan base-package=&quot;name.yamamoto.satoshi.app&quot; /&gt;
+
+  &lt;mvc:annotation-driven /&gt;
+  &lt;mvc:resources mapping=&quot;/assets/**&quot; location=&quot;/WEB-INF/assets/&quot; /&gt;
+
+  &lt;bean id=&quot;viewResolver&quot; class=&quot;org.springframework.web.servlet.view.UrlBasedViewResolver&quot;&gt;
+      &lt;property name=&quot;viewClass&quot; value=&quot;org.springframework.web.servlet.view.tiles3.TilesView&quot;/&gt;
+  &lt;/bean&gt;
+
+  &lt;bean id=&quot;tilesConfigurer&quot; class=&quot;org.springframework.web.servlet.view.tiles3.TilesConfigurer&quot; &gt;
+      &lt;property name=&quot;definitions&quot; value=&quot;classpath:/META-INF/tiles.xml&quot;/&gt;
+  &lt;/bean&gt;
+&lt;/beans&gt;</code></pre></noscript></div>
+
+
+<p>続いてJavaConfigですが、基本的な考え方はFactoryパターンです。@Beanアノテーションで修飾したメソッドで、対象のBeanインスタンスを生成するだけです。</p>
+
+<div><script src='https://gist.github.com/9633643.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>package name.yamamoto.satoshi.app;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.view.UrlBasedViewResolver;
+import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
+
+@Configuration
+@ComponentScan(basePackages={&quot;name.yamamoto.satoshi.app&quot;})
+@EnableWebMvc
+public class ApplicationConfig extends WebMvcConfigurerAdapter {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler(&quot;/assets/**&quot;).addResourceLocations(&quot;/WEB-INF/assets/&quot;);
+    }
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+
+    @Bean
+    public UrlBasedViewResolver viewResolver() {
+        UrlBasedViewResolver resolver = new UrlBasedViewResolver();
+        resolver.setViewClass(org.springframework.web.servlet.view.tiles3.TilesView.class);
+        return resolver;
+    }
+
+    @Bean
+    public TilesConfigurer tilesConfigure() {
+        TilesConfigurer configure = new TilesConfigurer();
+        configure.setDefinitions(new String[]{&quot;classpath:/META-INF/tiles.xml&quot;});
+        return configure;
+    }
+
+}</code></pre></noscript></div>
+
+
+<p>なお、このConfigクラスをサーブレットに登録するには、DispatcherServletのinit-paramを次のように設定します。</p>
+
+<div><script src='https://gist.github.com/9633712.js'></script>
+<script type="text/javascript">$(".gist-file table tr td.line-numbers").remove();</script>
+<noscript><pre><code>&lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;contextClass&lt;/param-name&gt;
+        &lt;param-value&gt;org.springframework.web.context.support.AnnotationConfigWebApplicationContext&lt;/param-value&gt;
+    &lt;/init-param&gt;
+    &lt;init-param&gt;
+        &lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+        &lt;param-value&gt;name.yamamoto.satoshi.app.ApplicationConfig&lt;/param-value&gt;
+    &lt;/init-param&gt;
+&lt;/servlet&gt;</code></pre></noscript></div>
+
+
+<p>今回、作成したプロジェクトはGithubにあげています。<a href="https://github.com/satoshiyamamoto/spring-mvc-quickstart">spring-mvc-quickstart</a>を<code>clone</code>し、<code>mvn jetty:run</code>で起動してみてください。HelloWorldが表示されます。</p>
+
+<h2>参考</h2>
+
+<ul>
+<li><a href="http://www.luckyryan.com/2013/02/07/migrate-spring-mvc-servlet-xml-to-java-config/">Migrate Spring MVC servlet.xml to Java Config &ndash; Lucky Ryan</a></li>
+<li><a href="http://docs.spring.io/spring/docs/3.1.x/javadoc-api/org/springframework/web/WebApplicationInitializer.html">WebApplicationInitializer</a></li>
+</ul>
+
 </div>
   
   
@@ -306,6 +2451,8 @@ Successfully installed byebug-2.3.1
   
   <div class="pagination">
     
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
+    
     <a href="/blog/archives">Blog Archives</a>
     
   </div>
@@ -313,18 +2460,64 @@ Successfully installed byebug-2.3.1
 <aside class="sidebar">
   
     <section>
+  <h1>About Me</h1>
+	<p>珈琲とドーナツを愛するWebアプリケーションエンジニア。React/ReduxとNode.jsが好き</p>
+  <img src="/images/mii.jpg" width="100px" alt="profile photo" />
+</section>
+<section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/01/06/rails/">Mac OS XにRails開発環境を構築する</a>
+        <a href="/blog/2017/01/24/react-advance/">Reactはじめました (応用編)</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2013/11/14/install-ruby-2-dot-0-on-mac/">Mac OS XにRuby 2.0をインストールする</a>
+        <a href="/blog/2017/01/23/react-basic/">Reactはじめました (基礎編)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/30/provisioning-03/">プロビジョニング事始め (3) Chef Zero編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/provisioning-02/">プロビジョニング事始め (2) Vagrant編</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/12/01/provisioning-01/">プロビジョニング事始め (1) Ruby環境構築編</a>
       </li>
     
   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating&#8230;</li>
+  </ul>
+  
+  <a href="https://github.com/satoshiyamamoto">@satoshiyamamoto</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'satoshiyamamoto',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
 
@@ -337,7 +2530,7 @@ Successfully installed byebug-2.3.1
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - 山本 聡 -
+  Copyright &copy; 2017 - 山本 聡 -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
